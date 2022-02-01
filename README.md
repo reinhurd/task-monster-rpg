@@ -24,3 +24,4 @@
 
 ####hint
 1. https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D0%BB%D0%B0%D0%BA%D0%BE_%D1%82%D0%B5%D0%B3%D0%BE%D0%B2 (облако тегов)
+2. https://developers.google.com/search/docs/advanced/structured-data/search-gallery и https://cloud.google.com/natural-language и https://smacient.com/top-google-search-engine-apis/
