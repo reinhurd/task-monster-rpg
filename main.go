@@ -6,6 +6,8 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
 	"log"
+	"math/rand"
+	"strings"
 )
 
 const (
@@ -55,7 +57,15 @@ func findTopic(token, topic string) string {
 	topics := getTopics()
 	//todo normalize searched values
 	if val, ok := topics[topic]; ok {
-		return "ok for " + token + " topic " + topic + " " + val
+		return "ok for " + token + " topic " + topic + " " + findRandomTasks(val)
 	}
 	return topic + " not found"
+}
+
+func findRandomTasks(tasks string) string {
+	splStrings := strings.Split(tasks, ",")
+	if len(splStrings) == 1 {
+		return splStrings[0]
+	}
+	return splStrings[rand.Intn(len(splStrings))]
 }
