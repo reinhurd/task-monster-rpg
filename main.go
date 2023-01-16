@@ -13,8 +13,9 @@ const (
 	TOPIC = "topic"
 )
 
-// http://localhost:8080/get_topic
+// http://localhost:8080/get_tasks?token=1&topic=php
 func main() {
+	generateTopics()
 	fmt.Printf("Starting server for testing HTTP POST...\n")
 
 	ln, err := reuseport.Listen("tcp4", "localhost:8080")
@@ -28,7 +29,7 @@ func main() {
 }
 
 func handler(ctx *fasthttp.RequestCtx) {
-	if string(ctx.Path()) != "/get_topic" || string(ctx.Method()) != "GET" {
+	if string(ctx.Path()) != "/get_tasks" || string(ctx.Method()) != "GET" {
 		ctx.Error("404 not found.", fasthttp.StatusNotFound)
 		return
 	}
@@ -51,5 +52,10 @@ func handler(ctx *fasthttp.RequestCtx) {
 }
 
 func findTopic(token, topic string) string {
-	return "ok for " + token + " " + topic
+	topics := getTopics()
+	//todo normalize searched values
+	if val, ok := topics[topic]; ok {
+		return "ok for " + token + " topic " + topic + " " + val
+	}
+	return topic + " not found"
 }
