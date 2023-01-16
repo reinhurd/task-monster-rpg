@@ -19,13 +19,13 @@
 
 Схема работы апи: - сет топика по токену (юзерИД или иное) и получение списка связанных тем
 
-####todo
+###todo
 0. Сделать сервер с апи
 1. Обдумать работу с chatGPT
 2. Сделать на го взаимодействие с телегой
 3. MVP взаимодействия с https://developers.google.com/custom-search/docs/tutorial/creatingcse
 4. MVP геймификации выполнения задач
 
-####hint
+###hint
 1. https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D0%BB%D0%B0%D0%BA%D0%BE_%D1%82%D0%B5%D0%B3%D0%BE%D0%B2 (облако тегов)
 2. https://developers.google.com/search/docs/advanced/structured-data/search-gallery и https://cloud.google.com/natural-language и https://smacient.com/top-google-search-engine-apis/
