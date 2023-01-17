@@ -3,6 +3,7 @@ module rpgMonster
 go 1.19
 
 require (
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/stretchr/testify v1.8.1
 	github.com/valyala/fasthttp v1.44.0
