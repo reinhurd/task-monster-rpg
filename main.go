@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
@@ -40,7 +41,12 @@ func handler(ctx *fasthttp.RequestCtx) {
 	//todo validate
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
-	if len(token) < 1 || len(topic) < 1 {
+	err := validate(string(token))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
+		return
+	}
+	if len(topic) < 1 {
 		ctx.Error("400 bad request", fasthttp.StatusBadRequest)
 		return
 	}
@@ -51,4 +57,18 @@ func handler(ctx *fasthttp.RequestCtx) {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
 	}
 	fmt.Fprintf(ctx, string(jsonResp))
+}
+
+func validate(token string) error {
+	if len(token) < 1 {
+		return errors.New("no token in input")
+	}
+	players := loadPlayers()
+	for _, player := range players {
+		// normalize
+		if player.Token == token {
+			return nil
+		}
+	}
+	return errors.New("no token found for players")
 }

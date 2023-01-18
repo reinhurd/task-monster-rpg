@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+const TOPICFILE = "topics.csv"
+
 type Topic struct {
 	MainTheme string
 	Topics    string
@@ -20,7 +22,7 @@ func generateTopics() {
 		{"php", "Concurrency,Parallelism,PHP9,Frameworks"},
 	}
 
-	csvFile, err := os.Create("topics.csv")
+	csvFile, err := os.Create(TOPICFILE)
 
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
@@ -36,7 +38,7 @@ func generateTopics() {
 }
 
 func getTopics() map[string]string {
-	f, err := os.Open("topics.csv")
+	f, err := os.Open(TOPICFILE)
 	if err != nil {
 		log.Fatal(err)
 	}
