@@ -32,10 +32,19 @@ func main() {
 }
 
 func handler(ctx *fasthttp.RequestCtx) {
-	if string(ctx.Path()) != "/get_tasks" || string(ctx.Method()) != "GET" {
-		ctx.Error("404 not found.", fasthttp.StatusNotFound)
+	if string(ctx.Path()) == "/get_tasks" && string(ctx.Method()) == "GET" {
+		findTaskHandler(ctx)
 		return
 	}
+	if string(ctx.Path()) == "/complete_tasks" && string(ctx.Method()) == "GET" {
+		//todo create some architecture for completing tasks
+		return
+	}
+	ctx.Error("404 not found.", fasthttp.StatusNotFound)
+	return
+}
+
+func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	//todo validate
@@ -57,6 +66,7 @@ func handler(ctx *fasthttp.RequestCtx) {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
 	}
 	fmt.Fprintf(ctx, string(jsonResp))
+	return
 }
 
 func validate(token string) error {

@@ -5,19 +5,40 @@ import (
 	"github.com/gocarina/gocsv"
 	"log"
 	"os"
+	"strconv"
 )
 
 const PLAYERFILE = "players.csv"
 
 // entites about gaming models of user when he got and doing tasks
-// todo getters and setters for all methods
-type Player struct {
+type PlayerDTO struct {
 	Name        string
 	Token       string //must be unique
 	CurrentTask string
 	Level       string
 	Xp          string
 	Health      string //percentage
+}
+
+type Player struct {
+	Name        string
+	Token       string //must be unique
+	CurrentTask string
+	Level       int64
+	Xp          int64
+	Health      int64 //percentage
+}
+
+func setNewLevel(level, xp int64) (int64, int64) {
+	newLevelXp := level * level * 1000
+	if xp >= newLevelXp {
+		return level + 1, xp - newLevelXp
+	}
+	return level, xp
+}
+
+func completeTasksForXp(xp, reward int64) int64 {
+	return xp + reward
 }
 
 // create db with all existed players for future use
@@ -49,8 +70,31 @@ func loadPlayers() []Player {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	cur := make([]Player, 0, 100)
+	cur := make([]PlayerDTO, 0, 100)
 	_ = gocsv.UnmarshalWithoutHeaders(f, &cur)
 
-	return cur
+	return toPlayer(cur)
+}
+
+func toPlayer(plDto []PlayerDTO) []Player {
+	res := make([]Player, 0, len(plDto))
+	for i := range plDto {
+		res = append(res, Player{
+			Name:        plDto[i].Name,
+			Token:       plDto[i].Token,
+			CurrentTask: plDto[i].CurrentTask,
+			Level:       stringToInt(plDto[i].Level),
+			Xp:          stringToInt(plDto[i].Xp),
+			Health:      stringToInt(plDto[i].Health),
+		})
+	}
+	return res
+}
+
+func stringToInt(s string) int64 {
+	res, err := strconv.Atoi(s)
+	if err == nil {
+		return int64(res)
+	}
+	return 0
 }
