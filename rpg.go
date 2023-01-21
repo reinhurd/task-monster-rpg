@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"github.com/gocarina/gocsv"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 )
 
 const PLAYERFILE = "players.csv"
+const DEFAULT_REWARD = 10
 
 // entites about gaming models of user when he got and doing tasks
 type PlayerDTO struct {
@@ -39,6 +41,18 @@ func setNewLevel(level, xp int64) (int64, int64) {
 
 func completeTasksForXp(xp, reward int64) int64 {
 	return xp + reward
+}
+
+func completeTopic(pl *Player, topic string) error {
+	//todo normalize
+	if pl.CurrentTask != topic {
+		return errors.New("topic is not set in player")
+	}
+	pl.CurrentTask = ""
+	//todo test for all math cases
+	pl.Xp = completeTasksForXp(pl.Xp, DEFAULT_REWARD)
+	pl.Level, pl.Xp = setNewLevel(pl.Level, pl.Xp)
+	return nil
 }
 
 // create db with all existed players for future use

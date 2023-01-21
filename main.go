@@ -7,6 +7,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
 	"log"
+	"strconv"
 )
 
 const (
@@ -14,7 +15,6 @@ const (
 	TOPIC = "topic"
 )
 
-// http://localhost:8080/get_tasks?token=1&topic=php
 func main() {
 	// unite with crete init methods
 	generateTopics()
@@ -32,25 +32,59 @@ func main() {
 }
 
 func handler(ctx *fasthttp.RequestCtx) {
-	if string(ctx.Path()) == "/get_tasks" && string(ctx.Method()) == "GET" {
-		findTaskHandler(ctx)
+	switch string(ctx.Path()) {
+	// http://localhost:8080/get_tasks?token=1&topic=php
+	case "/get_tasks":
+		if string(ctx.Method()) == "GET" {
+			findTaskHandler(ctx)
+		}
+		return
+	// http://localhost:8080/complete_tasks?token=1&topic=php
+	case "/complete_tasks":
+		if string(ctx.Method()) == "GET" {
+			completeTaskHandler(ctx)
+		}
+		return
+	default:
+		ctx.Error("404 not found.", fasthttp.StatusNotFound)
 		return
 	}
-	if string(ctx.Path()) == "/complete_tasks" && string(ctx.Method()) == "GET" {
-		//todo create some architecture for completing tasks
+}
+
+func completeTaskHandler(ctx *fasthttp.RequestCtx) {
+	ctx.SetContentType("application/json")
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	token := ctx.QueryArgs().Peek(TOKEN)
+	topic := ctx.QueryArgs().Peek(TOPIC)
+	player, err := validatePlayer(string(token))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
 	}
-	ctx.Error("404 not found.", fasthttp.StatusNotFound)
+	err = completeTopic(player, string(topic))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
+		return
+	}
+	//todo save result
+	resp := make(map[string]string)
+	//prettifier this
+	resp["result"] = "your new level is " + strconv.Itoa(int(player.Level)) + " your new xp is " + strconv.Itoa(int(player.Xp))
+	jsonResp, err := json.Marshal(resp)
+	if err != nil {
+		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+	}
+	fmt.Fprintf(ctx, string(jsonResp))
 	return
 }
 
 func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
-	//todo validate
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
-	err := validate(string(token))
+	//todo do something with player
+	_, err := validatePlayer(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
@@ -69,16 +103,16 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	return
 }
 
-func validate(token string) error {
+func validatePlayer(token string) (*Player, error) {
 	if len(token) < 1 {
-		return errors.New("no token in input")
+		return nil, errors.New("no token in input")
 	}
 	players := loadPlayers()
 	for _, player := range players {
 		// normalize
 		if player.Token == token {
-			return nil
+			return &player, nil
 		}
 	}
-	return errors.New("no token found for players")
+	return nil, errors.New("no token found for players")
 }
