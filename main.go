@@ -7,7 +7,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
 	"log"
-	"strconv"
 )
 
 const (
@@ -16,7 +15,7 @@ const (
 )
 
 func main() {
-	// unite with crete init methods
+	// unite with create init methods
 	generateTopics()
 	generatePlayers()
 	fmt.Printf("Starting server for testing HTTP POST...\n")
@@ -66,10 +65,13 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx) {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
 	}
-	//todo save result
+
 	resp := make(map[string]string)
-	//prettifier this
-	resp["result"] = "your new level is " + strconv.Itoa(int(player.Level)) + " your new xp is " + strconv.Itoa(int(player.Xp))
+	resp["result"] = fmt.Sprintf("your new level is %v your new xp is %v", player.Level, player.Xp)
+	//saving
+	newPl := replacePlayer(player, loadPlayers())
+	savePlayers(newPl)
+
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 )
@@ -9,9 +10,9 @@ func findTopic(token, topic string) string {
 	topics := getTopics()
 	//todo normalize searched values
 	if val, ok := topics[topic]; ok {
-		return "ok for " + token + " topic " + topic + " " + findRandomTasks(val)
+		return fmt.Sprintf("ok for token: %v, topic: %v == %v", token, topic, findRandomTasks(val))
 	}
-	return topic + " not found"
+	return fmt.Sprintf("%v not found", topic)
 }
 
 func findRandomTasks(tasks string) string {

@@ -31,6 +31,18 @@ type Player struct {
 	Health      int64 //percentage
 }
 
+func (p *Player) toCSV() []string {
+	var res []string
+	res = append(res, p.Name)
+	res = append(res, p.Token)
+	res = append(res, p.CurrentTask)
+	res = append(res, strconv.Itoa(int(p.Level)))
+	res = append(res, strconv.Itoa(int(p.Xp)))
+	res = append(res, strconv.Itoa(int(p.Health)))
+
+	return res
+}
+
 func setNewLevel(level, xp int64) (int64, int64) {
 	newLevelXp := level * level * 1000
 	if xp >= newLevelXp {
@@ -90,6 +102,35 @@ func loadPlayers() []Player {
 	return toPlayer(cur)
 }
 
+func replacePlayer(pl *Player, players []Player) []Player {
+	res := make([]Player, 0, len(players))
+	for _, oldPl := range players {
+		if oldPl.Token != pl.Token {
+			res = append(res, oldPl)
+		}
+	}
+	res = append(res, *pl)
+
+	return res
+}
+
+func savePlayers(pl []Player) {
+	csvFile, err := os.Create(PLAYERFILE)
+
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	csvwriter := csv.NewWriter(csvFile)
+
+	for _, player := range pl {
+		_ = csvwriter.Write(player.toCSV())
+	}
+	csvwriter.Flush()
+	csvFile.Close()
+}
+
+// todo make a struct method
 func toPlayer(plDto []PlayerDTO) []Player {
 	res := make([]Player, 0, len(plDto))
 	for i := range plDto {
