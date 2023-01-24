@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-func findTopic(token, topic string) string {
+func findTopic(token, topic string) (string, error) {
 	topics := getTopics()
 	//todo normalize searched values
 	if val, ok := topics[topic]; ok {
-		return fmt.Sprintf("ok for token: %v, topic: %v == %v", token, topic, findRandomTasks(val))
+		return findRandomTasks(val), nil
 	}
-	return fmt.Sprintf("%v not found", topic)
+	return "", fmt.Errorf("%v not found", topic)
 }
 
 func findRandomTasks(tasks string) string {

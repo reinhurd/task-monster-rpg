@@ -90,7 +90,7 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
 	//todo do something with player
-	_, err := validatePlayer(string(token))
+	pl, err := validatePlayer(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
@@ -100,7 +100,19 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	resp := make(map[string]string)
-	resp["result"] = findTopic(string(token), string(topic))
+	//set a random topic to a player
+	curRandTopic, err := findTopic(string(token), string(topic))
+	if err != nil {
+		ctx.Error("400 bad request", fasthttp.StatusBadRequest)
+		log.Fatalf("Err: %s", err)
+		return
+	}
+	resp["result"] = fmt.Sprintf("ok for token: %v, topic: %v == %v", token, topic, curRandTopic)
+	//todo think for replacing topic and sets fine's for replace non complete topics
+	pl.CurrentTask = curRandTopic
+	//todo unite in one methods
+	newPls := replacePlayer(pl, loadPlayers())
+	savePlayers(newPls)
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
