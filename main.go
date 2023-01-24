@@ -15,9 +15,8 @@ const (
 )
 
 func main() {
-	// unite with create init methods
-	generateTopics()
-	generatePlayers()
+	//todo add context
+	initApp()
 	fmt.Printf("Starting server for testing HTTP POST...\n")
 
 	ln, err := reuseport.Listen("tcp4", "localhost:8080")
@@ -28,6 +27,11 @@ func main() {
 	if err = fasthttp.Serve(ln, handler); err != nil {
 		log.Fatalf("error in fasthttp Server: %v", err)
 	}
+}
+
+func initApp() {
+	generateTopics()
+	generatePlayers()
 }
 
 func handler(ctx *fasthttp.RequestCtx) {
