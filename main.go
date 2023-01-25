@@ -73,8 +73,7 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx) {
 	resp := make(map[string]string)
 	resp["result"] = fmt.Sprintf("your new level is %v your new xp is %v", player.Level, player.Xp)
 	//saving
-	newPl := replacePlayer(player, loadPlayers())
-	savePlayers(newPl)
+	setPlayers(player)
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
@@ -110,9 +109,8 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	resp["result"] = fmt.Sprintf("ok for token: %v, topic: %v == %v", token, topic, curRandTopic)
 	//todo think for replacing topic and sets fine's for replace non complete topics
 	pl.CurrentTask = curRandTopic
-	//todo unite in one methods
-	newPls := replacePlayer(pl, loadPlayers())
-	savePlayers(newPls)
+
+	setPlayers(pl)
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)

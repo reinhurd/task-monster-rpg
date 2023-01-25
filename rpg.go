@@ -102,19 +102,16 @@ func loadPlayers() []Player {
 	return toPlayer(cur)
 }
 
-func replacePlayer(pl *Player, players []Player) []Player {
-	res := make([]Player, 0, len(players))
+func setPlayers(plr *Player) {
+	players := loadPlayers()
+	resPlrs := make([]Player, 0, len(players))
 	for _, oldPl := range players {
-		if oldPl.Token != pl.Token {
-			res = append(res, oldPl)
+		if oldPl.Token != plr.Token {
+			resPlrs = append(resPlrs, oldPl)
 		}
 	}
-	res = append(res, *pl)
+	resPlrs = append(resPlrs, *plr)
 
-	return res
-}
-
-func savePlayers(pl []Player) {
 	csvFile, err := os.Create(PLAYERFILE)
 
 	if err != nil {
@@ -123,7 +120,7 @@ func savePlayers(pl []Player) {
 
 	csvwriter := csv.NewWriter(csvFile)
 
-	for _, player := range pl {
+	for _, player := range resPlrs {
 		_ = csvwriter.Write(player.toCSV())
 	}
 	csvwriter.Flush()
