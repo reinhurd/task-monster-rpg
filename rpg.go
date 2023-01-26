@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/gocarina/gocsv"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 const PLAYERFILE = "players.csv"
 const DEFAULT_REWARD = 10
+const DEFAULT_FINE = 20
 
 // entites about gaming models of user when he got and doing tasks
 type PlayerDTO struct {
@@ -125,6 +127,18 @@ func setPlayers(plr *Player) {
 	}
 	csvwriter.Flush()
 	csvFile.Close()
+}
+
+func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
+	if topic == "" {
+		return
+	}
+	if pl.CurrentTask != "" {
+		//fine player for undoing task
+		pl.Xp = pl.Xp - DEFAULT_REWARD
+		fmt.Printf("The player %s was fined by amount %v for not completed task", pl.Name, DEFAULT_FINE)
+	}
+	pl.CurrentTask = topic
 }
 
 // todo make a struct method

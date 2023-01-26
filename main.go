@@ -88,7 +88,7 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
-	//todo do something with player
+
 	pl, err := validatePlayer(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
@@ -107,8 +107,7 @@ func findTaskHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	resp["result"] = fmt.Sprintf("ok for token: %v, topic: %v == %v", token, topic, curRandTopic)
-	//todo think for replacing topic and sets fine's for replace non complete topics
-	pl.CurrentTask = curRandTopic
+	setTopicAndRemoveOldToPlayer(curRandTopic, pl)
 
 	setPlayers(pl)
 	jsonResp, err := json.Marshal(resp)
