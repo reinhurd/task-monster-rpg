@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const PLAYERFILE = "players.csv"
@@ -59,7 +60,7 @@ func completeTasksForXp(xp, reward int64) int64 {
 
 func completeTopic(pl *Player, topic string) error {
 	//todo normalize
-	if pl.CurrentTask != topic {
+	if strings.ToLower(pl.CurrentTask) != strings.ToLower(topic) {
 		return errors.New("topic is not set in player")
 	}
 	pl.CurrentTask = ""

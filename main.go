@@ -7,6 +7,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
 	"log"
+	"strings"
 )
 
 const (
@@ -124,8 +125,7 @@ func validatePlayer(token string) (*Player, error) {
 	}
 	players := loadPlayers()
 	for _, player := range players {
-		// normalize
-		if player.Token == token {
+		if strings.ToLower(player.Token) == strings.ToLower(token) {
 			return &player, nil
 		}
 	}
