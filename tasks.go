@@ -8,7 +8,6 @@ import (
 
 func findTopic(token, topic string) (string, error) {
 	topics := getTopics()
-	//todo normalize searched values
 	if val, ok := topics[topic]; ok {
 		return findRandomTasks(val), nil
 	}
@@ -20,5 +19,5 @@ func findRandomTasks(tasks string) string {
 	if len(splStrings) == 1 {
 		return splStrings[0]
 	}
-	return splStrings[rand.Intn(len(splStrings))]
+	return splStrings[rand.Intn(len(splStrings)-1)]
 }

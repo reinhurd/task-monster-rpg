@@ -59,7 +59,6 @@ func completeTasksForXp(xp, reward int64) int64 {
 }
 
 func completeTopic(pl *Player, topic string) error {
-	//todo normalize
 	if strings.ToLower(pl.CurrentTask) != strings.ToLower(topic) {
 		return errors.New("topic is not set in player")
 	}
@@ -139,7 +138,7 @@ func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 		pl.Xp = pl.Xp - DEFAULT_REWARD
 		fmt.Printf("The player %s was fined by amount %v for not completed task", pl.Name, DEFAULT_FINE)
 	}
-	pl.CurrentTask = topic
+	pl.CurrentTask = strings.ToLower(topic)
 }
 
 // todo make a struct method
