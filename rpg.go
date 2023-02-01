@@ -15,6 +15,12 @@ const PLAYERFILE = "players.csv"
 const DEFAULT_REWARD = 10
 const DEFAULT_FINE = 20
 
+var DEFAULT_PLAYERS_DATA = [][]string{
+	{"name", "token", "currentTask", "level", "xp", "health"},
+	{"PersonOne", "123456", "PHP", "1", "100", "100"},
+	{"PersonTwo", "221459", "Golang", "1", "99", "100"},
+}
+
 // entites about gaming models of user when he got and doing tasks
 type PlayerDTO struct {
 	Name        string
@@ -70,13 +76,7 @@ func completeTopic(pl *Player, topic string) error {
 }
 
 // create db with all existed players for future use
-func generatePlayers() {
-	players := [][]string{
-		{"name", "token", "currentTask", "level", "xp", "health"},
-		{"PersonOne", "123456", "PHP", "1", "100", "100"},
-		{"PersonTwo", "221459", "Golang", "1", "99", "100"},
-	}
-
+func generatePlayers(players [][]string) {
 	csvFile, err := os.Create(PLAYERFILE)
 
 	if err != nil {

@@ -31,8 +31,8 @@ func main() {
 }
 
 func initApp() {
-	generateTopics()
-	generatePlayers()
+	generateTopics(DEFAULT_TOPICS_DATA)
+	generatePlayers(DEFAULT_PLAYERS_DATA)
 }
 
 func handler(ctx *fasthttp.RequestCtx) {

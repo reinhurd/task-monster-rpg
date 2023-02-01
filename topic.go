@@ -10,18 +10,18 @@ import (
 
 const TOPICFILE = "topics.csv"
 
+var DEFAULT_TOPICS_DATA = [][]string{
+	{"Main Theme", "Topic"},
+	{"golang", "Concurrency,Parallelism,Goroutine,Frameworks"},
+	{"php", "Concurrency,Parallelism,PHP9,Frameworks"},
+}
+
 type Topic struct {
 	MainTheme string
 	Topics    string
 }
 
-func generateTopics() {
-	topics := [][]string{
-		{"Main Theme", "Topic"},
-		{"golang", "Concurrency,Parallelism,Goroutine,Frameworks"},
-		{"php", "Concurrency,Parallelism,PHP9,Frameworks"},
-	}
-
+func generateTopics(topics [][]string) {
 	csvFile, err := os.Create(TOPICFILE)
 
 	if err != nil {
