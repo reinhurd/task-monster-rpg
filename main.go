@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -17,6 +19,7 @@ const (
 
 func main() {
 	//todo add context
+	//getChat()
 	initApp()
 	fmt.Printf("Starting server for testing HTTP POST...\n")
 
@@ -28,6 +31,32 @@ func main() {
 	if err = fasthttp.Serve(ln, handler); err != nil {
 		log.Fatalf("error in fasthttp Server: %v", err)
 	}
+}
+
+func getChat() {
+	client := &http.Client{}
+	var data = strings.NewReader(`{
+  "model": "text-davinci-003",
+  "prompt": "What is php?",      
+  "max_tokens": 4000,
+  "temperature": 1.0
+}`)
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/completions", data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL3Byb2ZpbGUiOnsiZW1haWwiOiJyb2FydXNAeWFuZGV4LnJ1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdlb2lwX2NvdW50cnkiOiJBUiJ9LCJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsidXNlcl9pZCI6InVzZXItNm5SWWhRazdWWVZ4d1hRTGVjUDM5NzlrIn0sImlzcyI6Imh0dHBzOi8vYXV0aDAub3BlbmFpLmNvbS8iLCJzdWIiOiJhdXRoMHw2M2MzMzEwMTQyOWQxM2ZhOTg5MGRkNGIiLCJhdWQiOlsiaHR0cHM6Ly9hcGkub3BlbmFpLmNvbS92MSIsImh0dHBzOi8vb3BlbmFpLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE2NzQ3NjgyNDksImV4cCI6MTY3NTM3MzA0OSwiYXpwIjoiVGRKSWNiZTE2V29USHROOTVueXl3aDVFNHlPbzZJdEciLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIG1vZGVsLnJlYWQgbW9kZWwucmVxdWVzdCBvcmdhbml6YXRpb24ucmVhZCBvZmZsaW5lX2FjY2VzcyJ9.LUcn9JjP7DWa9oPKHcKb0jXKWcQrcm3V5kMGEch4na8Y8GiScri3uJZuVGPOf0APHqPGXMt3-dKVWylNj8C7TcJjyjPkACp-9nv1UACbQ2j0ORN2cCXhfNmzmCOCWxxjZ2ACPagtblMRZrybxv8k3X7BU9eckGVVeWFpKhenihaNPrN4slusGMaqgX2b7z1NGUZC4MOHKTQqvsjAIXSERsDlvsJXO8BbS3G0PuDxqyookgd4ca30QaWf4xoEVIBoUpWyGEFfDtVwW18bByMICjPZLvHoxTIqCz92UeGnzsH2lZn7x86h7O06WHw85aRu9etqlAj8FNtRfbk5C5rj0w")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	bodyText, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s\n", bodyText)
 }
 
 func initApp() {
