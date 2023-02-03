@@ -16,9 +16,10 @@ var headerContentTypeJson = []byte("application/json")
 var client *fasthttp.Client
 
 const (
-	CHATGRPMODEL = "text-davinci-003"
-	MAXTOKENS    = 4000
-	TEMPERATURE  = 1.0
+	CHATGPT_API_URL     = "https://api.openai.com/v1/completions"
+	CHATGRPMODEL        = "text-davinci-003"
+	DEFAULT_MAX_TOKENS  = 4000
+	DEFAULT_TEMPERATURE = 1.0
 )
 
 type ChatGPTEntity struct {
@@ -34,11 +35,7 @@ type ChatGPTResponse struct {
 	Created int       `json:"created"`
 	Model   string    `json:"model"`
 	Choices []Choices `json:"choices"`
-	Usage   struct {
-		PromptTokens     int `json:"prompt_tokens"`
-		CompletionTokens int `json:"completion_tokens"`
-		TotalTokens      int `json:"total_tokens"`
-	} `json:"usage"`
+	Usage   Usage     `json:"usage"`
 }
 
 type Choices struct {
@@ -46,6 +43,12 @@ type Choices struct {
 	Index        int         `json:"index"`
 	Logprobs     interface{} `json:"logprobs"`
 	FinishReason string      `json:"finish_reason"`
+}
+
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
 }
 
 func getChat(question string) string {
@@ -73,18 +76,18 @@ func getChat(question string) string {
 	reqEntity := &ChatGPTEntity{
 		Model:       CHATGRPMODEL,
 		Prompt:      question,
-		MaxTokens:   MAXTOKENS,
-		Temperature: TEMPERATURE,
+		MaxTokens:   DEFAULT_MAX_TOKENS,
+		Temperature: DEFAULT_TEMPERATURE,
 	}
 	reqEntityBytes, _ := json.Marshal(reqEntity)
 
 	reqTimeout := time.Duration(10000) * time.Millisecond
 
 	req := fasthttp.AcquireRequest()
-	req.SetRequestURI("https://api.openai.com/v1/completions")
+	req.SetRequestURI(CHATGPT_API_URL)
 	req.Header.SetMethod(fasthttp.MethodPost)
 	req.Header.SetContentTypeBytes(headerContentTypeJson)
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL3Byb2ZpbGUiOnsiZW1haWwiOiJyb2FydXNAeWFuZGV4LnJ1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdlb2lwX2NvdW50cnkiOiJBUiJ9LCJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsidXNlcl9pZCI6InVzZXItNm5SWWhRazdWWVZ4d1hRTGVjUDM5NzlrIn0sImlzcyI6Imh0dHBzOi8vYXV0aDAub3BlbmFpLmNvbS8iLCJzdWIiOiJhdXRoMHw2M2MzMzEwMTQyOWQxM2ZhOTg5MGRkNGIiLCJhdWQiOlsiaHR0cHM6Ly9hcGkub3BlbmFpLmNvbS92MSIsImh0dHBzOi8vb3BlbmFpLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE2NzQ3NjgyNDksImV4cCI6MTY3NTM3MzA0OSwiYXpwIjoiVGRKSWNiZTE2V29USHROOTVueXl3aDVFNHlPbzZJdEciLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIG1vZGVsLnJlYWQgbW9kZWwucmVxdWVzdCBvcmdhbml6YXRpb24ucmVhZCBvZmZsaW5lX2FjY2VzcyJ9.LUcn9JjP7DWa9oPKHcKb0jXKWcQrcm3V5kMGEch4na8Y8GiScri3uJZuVGPOf0APHqPGXMt3-dKVWylNj8C7TcJjyjPkACp-9nv1UACbQ2j0ORN2cCXhfNmzmCOCWxxjZ2ACPagtblMRZrybxv8k3X7BU9eckGVVeWFpKhenihaNPrN4slusGMaqgX2b7z1NGUZC4MOHKTQqvsjAIXSERsDlvsJXO8BbS3G0PuDxqyookgd4ca30QaWf4xoEVIBoUpWyGEFfDtVwW18bByMICjPZLvHoxTIqCz92UeGnzsH2lZn7x86h7O06WHw85aRu9etqlAj8FNtRfbk5C5rj0w")
+	req.Header.Set("Authorization", PRIVATE_TOKEN)
 	req.SetBodyRaw(reqEntityBytes)
 	resp := fasthttp.AcquireResponse()
 	err := client.DoTimeout(req, resp, reqTimeout)
