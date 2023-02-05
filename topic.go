@@ -10,18 +10,27 @@ import (
 
 const TOPICFILE = "topics.csv"
 
-var DEFAULT_TOPICS_DATA = [][]string{
-	{"Main Theme", "Topic"},
-	{"golang", "Concurrency,Parallelism,Goroutine,Frameworks"},
-	{"php", "Concurrency,Parallelism,PHP9,Frameworks"},
-}
+var DEFAULT_TOPICS = []Topic{{
+	MainTheme: "Main Theme",
+	Topics:    "Topic",
+}, {
+	MainTheme: "golang",
+	Topics:    "Concurrency,Parallelism,Goroutine,Frameworks",
+}, {
+	MainTheme: "php",
+	Topics:    "Concurrency,Parallelism,PHP9,Frameworks",
+}}
 
 type Topic struct {
 	MainTheme string
 	Topics    string
 }
 
-func generateTopics(topics [][]string) {
+func (t *Topic) ToCSV() []string {
+	return []string{t.MainTheme, t.Topics}
+}
+
+func saveTopics(topics []Topic) {
 	csvFile, err := os.Create(TOPICFILE)
 
 	if err != nil {
@@ -31,13 +40,13 @@ func generateTopics(topics [][]string) {
 	csvwriter := csv.NewWriter(csvFile)
 
 	for _, topic := range topics {
-		_ = csvwriter.Write(topic)
+		_ = csvwriter.Write(topic.ToCSV())
 	}
 	csvwriter.Flush()
 	csvFile.Close()
 }
 
-func getTopics() map[string]string {
+func getTopics() []Topic {
 	f, err := os.Open(TOPICFILE)
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +54,11 @@ func getTopics() map[string]string {
 	defer f.Close()
 	cur := make([]Topic, 0, 100)
 	_ = gocsv.UnmarshalWithoutHeaders(f, &cur)
+
+	return cur
+}
+
+func makeTopicsAsMap(cur []Topic) map[string]string {
 	res := make(map[string]string, len(cur))
 	for i := range cur {
 		if i == 0 {

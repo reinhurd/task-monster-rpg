@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func findTopic(token, topic string) (string, error) {
-	topics := getTopics()
+func findTopic(topic string) (string, error) {
+	topics := makeTopicsAsMap(getTopics())
 	if val, ok := topics[topic]; ok {
 		return findRandomTasks(val), nil
 	}
