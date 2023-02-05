@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gocarina/gocsv"
+	"strings"
 
 	"encoding/csv"
 	"log"
@@ -68,4 +69,26 @@ func makeTopicsAsMap(cur []Topic) map[string]string {
 	}
 
 	return res
+}
+
+func saveNewTopics(theme string, topics string) error {
+	allTopics := getTopics()
+	for _, t := range allTopics {
+		if strings.ToLower(t.MainTheme) == strings.ToLower(theme) {
+			t.Topics = strings.ToLower(topics)
+			saveTopics(allTopics)
+
+			return nil
+		}
+	}
+
+	newTopic := Topic{
+		MainTheme: theme,
+		Topics:    topics,
+	}
+
+	topicsToSave := append(allTopics, newTopic)
+	saveTopics(topicsToSave)
+
+	return nil
 }

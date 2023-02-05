@@ -96,33 +96,29 @@ func generateTopicsHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	token := ctx.QueryArgs().Peek(TOKEN)
-	theme := ctx.QueryArgs().Peek(THEME)
+	theme := string(ctx.QueryArgs().Peek(THEME))
 	_, err := validatePlayer(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
 	}
 
-	//todo implement theme to chatGPT request
-	//todo validate
+	err = validateTheme(theme)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
+		return
+	}
 	question := fmt.Sprintf("Say the most important topics to learn in %s, 10 examples, by 2 words, list separated by commas?", theme)
 	topics := normalizeChatGptAnswer(getChat(question))
-	//todo prettify
-	newTopic := Topic{
-		MainTheme: string(theme),
-		Topics:    topics,
-	}
-	allTopics := getTopics()
-	topicsToSave := append(allTopics, newTopic)
-	saveTopics(topicsToSave)
 
+	err = saveNewTopics(theme, topics)
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
 	}
 
 	resp := make(map[string]string)
-	resp["result"] = fmt.Sprintf("finding for theme %s these topics %s", newTopic.MainTheme, newTopic.Topics)
+	resp["result"] = fmt.Sprintf("finding for theme %s these topics %s", theme, topics)
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
@@ -183,4 +179,11 @@ func validatePlayer(token string) (*Player, error) {
 		}
 	}
 	return nil, errors.New("no token found for players")
+}
+
+func validateTheme(th string) error {
+	if len(th) < 2 {
+		return errors.New("invalid theme")
+	}
+	return nil
 }
