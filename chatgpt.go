@@ -51,7 +51,7 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
-func getChat(question string) string {
+func setupChatClient() {
 	readTimeout, _ := time.ParseDuration("10000ms")
 	writeTimeout, _ := time.ParseDuration("10000ms")
 	maxIdleConnDuration, _ := time.ParseDuration("1h")
@@ -68,6 +68,25 @@ func getChat(question string) string {
 			DNSCacheDuration: time.Hour,
 		}).Dial,
 	}
+}
+
+func sendRequest(reqEnt []byte) (*fasthttp.Response, error) {
+	reqTimeout := time.Duration(10000) * time.Millisecond
+
+	req := fasthttp.AcquireRequest()
+	req.SetRequestURI(CHATGPT_API_URL)
+	req.Header.SetMethod(fasthttp.MethodPost)
+	req.Header.SetContentTypeBytes(headerContentTypeJson)
+	req.Header.Set("Authorization", PRIVATE_TOKEN)
+	req.SetBodyRaw(reqEnt)
+	resp := fasthttp.AcquireResponse()
+	err := client.DoTimeout(req, resp, reqTimeout)
+	fasthttp.ReleaseRequest(req)
+	return resp, err
+}
+
+func getChat(question string) string {
+	setupChatClient()
 
 	if question == "" {
 		question = "What is php?"
@@ -81,17 +100,8 @@ func getChat(question string) string {
 	}
 	reqEntityBytes, _ := json.Marshal(reqEntity)
 
-	reqTimeout := time.Duration(10000) * time.Millisecond
+	resp, err := sendRequest(reqEntityBytes)
 
-	req := fasthttp.AcquireRequest()
-	req.SetRequestURI(CHATGPT_API_URL)
-	req.Header.SetMethod(fasthttp.MethodPost)
-	req.Header.SetContentTypeBytes(headerContentTypeJson)
-	req.Header.Set("Authorization", PRIVATE_TOKEN)
-	req.SetBodyRaw(reqEntityBytes)
-	resp := fasthttp.AcquireResponse()
-	err := client.DoTimeout(req, resp, reqTimeout)
-	fasthttp.ReleaseRequest(req)
 	if err == nil {
 		statusCode := resp.StatusCode()
 		respBody := resp.Body()
