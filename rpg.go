@@ -52,26 +52,26 @@ func (p *Player) toCSV() []string {
 	return res
 }
 
-func setNewLevel(level, xp int64) (int64, int64) {
-	newLevelXp := level * level * 1000
-	if xp >= newLevelXp {
-		return level + 1, xp - newLevelXp
+func (p *Player) setNewLevel() {
+	newLevelXp := p.Level * p.Level * 1000
+	if p.Xp >= newLevelXp {
+		p.Level = p.Level + 1
+		p.Xp = p.Xp - newLevelXp
 	}
-	return level, xp
 }
 
-func completeTasksForXp(xp, reward int64) int64 {
-	return xp + reward
+func (p *Player) completeTasksForXp(reward int64) {
+	p.Xp = p.Xp + reward
 }
 
-func completeTopic(pl *Player, topic string) error {
-	if strings.ToLower(pl.CurrentTask) != strings.ToLower(topic) {
+func (p *Player) completeTopic(topic string) error {
+	if strings.ToLower(p.CurrentTask) != strings.ToLower(topic) {
 		return errors.New("topic is not set in player")
 	}
-	pl.CurrentTask = ""
+	p.CurrentTask = ""
 	//todo test for all math cases
-	pl.Xp = completeTasksForXp(pl.Xp, DEFAULT_REWARD)
-	pl.Level, pl.Xp = setNewLevel(pl.Level, pl.Xp)
+	p.completeTasksForXp(DEFAULT_REWARD)
+	p.setNewLevel()
 	return nil
 }
 
@@ -141,7 +141,6 @@ func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 	pl.CurrentTask = strings.ToLower(topic)
 }
 
-// todo make a struct method
 func toPlayer(plDto []PlayerDTO) []Player {
 	res := make([]Player, 0, len(plDto))
 	for i := range plDto {

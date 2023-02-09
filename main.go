@@ -73,7 +73,7 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx) {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
 	}
-	err = completeTopic(player, string(topic))
+	err = player.completeTopic(string(topic))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
