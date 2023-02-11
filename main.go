@@ -110,19 +110,9 @@ func createPlayer(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	//todo prettify and add creating token
 	resp := make(map[string]string)
-	player := Player{
-		Name:        "",
-		Token:       "",
-		CurrentTask: "",
-		Level:       0,
-		Xp:          0,
-		Health:      0,
-	}
-	resp["result"] = fmt.Sprintf("Player %s is created with token %s", player.Name, player.Token)
-	//saving
-	setPlayers(&player)
+	pl := createNewPlayer(name)
+	resp["result"] = fmt.Sprintf("Player %s is created with token %s", pl.Name, pl.Token)
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
@@ -130,11 +120,6 @@ func createPlayer(ctx *fasthttp.RequestCtx) {
 	}
 	fmt.Fprintf(ctx, string(jsonResp))
 	return
-}
-
-func validatePlayerName(name string) error {
-	//todo make validation
-	return nil
 }
 
 func generateTopicsHandler(ctx *fasthttp.RequestCtx) {

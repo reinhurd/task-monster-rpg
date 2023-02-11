@@ -14,6 +14,7 @@ import (
 const PLAYERFILE = "players.csv"
 const DEFAULT_REWARD = 10
 const DEFAULT_FINE = 20
+const DEFAULT_TOKEN_LENGHT = 10
 
 var DEFAULT_PLAYERS_DATA = [][]string{
 	{"name", "token", "currentTask", "level", "xp", "health"},
@@ -104,10 +105,38 @@ func loadPlayers() []Player {
 	return toPlayer(cur)
 }
 
+func validatePlayerName(name string) error {
+	pls := loadPlayers()
+	for _, oldPl := range pls {
+		if strings.ToLower(oldPl.Name) == strings.ToLower(name) {
+			return fmt.Errorf("player name %s already exists", name)
+		}
+	}
+	return nil
+}
+
+func createNewPlayer(name string) Player {
+	player := Player{
+		Name:        name,
+		Token:       generateToken(),
+		CurrentTask: "",
+		Level:       1,
+		Xp:          0,
+		Health:      0,
+	}
+	setPlayers(&player)
+	return player
+}
+
+func generateToken() string {
+	return RandStringBytesMaskImpr(DEFAULT_TOKEN_LENGHT)
+}
+
 func setPlayers(plr *Player) {
 	players := loadPlayers()
 	resPlrs := make([]Player, 0, len(players))
 	for _, oldPl := range players {
+		//todo test this
 		if oldPl.Token != plr.Token {
 			resPlrs = append(resPlrs, oldPl)
 		}
