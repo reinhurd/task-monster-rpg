@@ -15,12 +15,13 @@ const (
 	TOKEN = "token"
 	TOPIC = "topic"
 	THEME = "theme"
+	NAME  = "name"
 )
 
 func main() {
 	//todo add context
 	initApp()
-	fmt.Printf("Starting server for testing HTTP POST...\n")
+	fmt.Printf("Starting server...\n")
 
 	ln, err := reuseport.Listen("tcp4", "localhost:8080")
 	if err != nil {
@@ -57,6 +58,12 @@ func handler(ctx *fasthttp.RequestCtx) {
 			generateTopicsHandler(ctx)
 		}
 		return
+	// http://localhost:8080/create_player?name=john
+	case "/create_player":
+		if string(ctx.Method()) == "GET" {
+			createPlayer(ctx)
+		}
+		return
 	default:
 		ctx.Error("404 not found.", fasthttp.StatusNotFound)
 		return
@@ -90,6 +97,44 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx) {
 	}
 	fmt.Fprintf(ctx, string(jsonResp))
 	return
+}
+
+// todo terminar
+func createPlayer(ctx *fasthttp.RequestCtx) {
+	ctx.SetContentType("application/json")
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	name := string(ctx.QueryArgs().Peek(NAME))
+	err := validatePlayerName(name)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
+		return
+	}
+
+	//todo prettify and add creating token
+	resp := make(map[string]string)
+	player := Player{
+		Name:        "",
+		Token:       "",
+		CurrentTask: "",
+		Level:       0,
+		Xp:          0,
+		Health:      0,
+	}
+	resp["result"] = fmt.Sprintf("Player %s is created with token %s", player.Name, player.Token)
+	//saving
+	setPlayers(&player)
+
+	jsonResp, err := json.Marshal(resp)
+	if err != nil {
+		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+	}
+	fmt.Fprintf(ctx, string(jsonResp))
+	return
+}
+
+func validatePlayerName(name string) error {
+	//todo make validation
+	return nil
 }
 
 func generateTopicsHandler(ctx *fasthttp.RequestCtx) {

@@ -24,3 +24,4 @@
 1. Хранение данных в поднимаемой БД
 2. Мейк-файл для разворачивания сервиса
 3. Перенести все в докер
+4. Make a history with visualiation for the player story
