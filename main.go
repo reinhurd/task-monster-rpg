@@ -99,7 +99,6 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx) {
 	return
 }
 
-// todo terminar
 func createPlayer(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
