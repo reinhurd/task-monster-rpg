@@ -138,3 +138,53 @@ func Test_completeTasksForXp(t *testing.T) {
 		})
 	}
 }
+
+func Test_completeTopic(t *testing.T) {
+	tests := []struct {
+		name   string
+		player Player
+		topic  string
+		expRes int64
+		expErr func(err error)
+	}{
+		{
+			name: "normal_case",
+			player: Player{
+				Name:        "PersonOne",
+				Token:       "123456",
+				CurrentTask: "PHP",
+				Level:       1,
+				Xp:          100,
+				Health:      100,
+			},
+			topic:  "PHP",
+			expRes: 110,
+			expErr: func(err error) {
+				require.NoError(t, err)
+			},
+		},
+		{
+			name: "invalid_topic",
+			player: Player{
+				Name:        "",
+				Token:       "",
+				CurrentTask: "",
+				Level:       0,
+				Xp:          0,
+				Health:      0,
+			},
+			topic:  "non",
+			expRes: 0,
+			expErr: func(err error) {
+				require.Error(t, err)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.player.completeTopic(tt.topic)
+			tt.expErr(err)
+			require.Equal(t, tt.expRes, tt.player.Xp)
+		})
+	}
+}
