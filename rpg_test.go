@@ -188,3 +188,24 @@ func Test_completeTopic(t *testing.T) {
 		})
 	}
 }
+
+func Test_generateToken(t *testing.T) {
+	tests := []struct {
+		name   string
+		expRes func(res string)
+	}{
+		{
+			name: "normal_case",
+			expRes: func(res string) {
+				require.NotEmpty(t, res)
+				require.Equal(t, DEFAULT_TOKEN_LENGHT, len(res))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := generateToken()
+			tt.expRes(res)
+		})
+	}
+}
