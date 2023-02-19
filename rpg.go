@@ -164,7 +164,7 @@ func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 	}
 	if pl.CurrentTask != "" {
 		//fine player for undoing task
-		pl.Xp = pl.Xp - DEFAULT_REWARD
+		pl.Xp = pl.Xp - DEFAULT_FINE
 		fmt.Printf("The player %s was fined by amount %v for not completed task", pl.Name, DEFAULT_FINE)
 	}
 	pl.CurrentTask = strings.ToLower(topic)

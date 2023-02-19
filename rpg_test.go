@@ -189,6 +189,48 @@ func Test_completeTopic(t *testing.T) {
 	}
 }
 
+func Test_setTopicAndRemoveOldToPlayer(t *testing.T) {
+	tests := []struct {
+		name     string
+		player   Player
+		newtopic string
+		expRes   int64
+	}{
+		{
+			name: "normal_case",
+			player: Player{
+				Name:        "PersonOne",
+				Token:       "123456",
+				CurrentTask: "PHP",
+				Level:       1,
+				Xp:          100,
+				Health:      100,
+			},
+			newtopic: "PHP2",
+			expRes:   80,
+		},
+		{
+			name: "invalid_topic",
+			player: Player{
+				Name:        "",
+				Token:       "",
+				CurrentTask: "",
+				Level:       0,
+				Xp:          0,
+				Health:      0,
+			},
+			newtopic: "",
+			expRes:   0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			setTopicAndRemoveOldToPlayer(tt.newtopic, &tt.player)
+			require.Equal(t, tt.expRes, tt.player.Xp)
+		})
+	}
+}
+
 func Test_generateToken(t *testing.T) {
 	tests := []struct {
 		name   string
