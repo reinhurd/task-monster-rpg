@@ -251,3 +251,43 @@ func Test_generateToken(t *testing.T) {
 		})
 	}
 }
+
+func Test_stringToInt(t *testing.T) {
+	tests := []struct {
+		name   string
+		req    string
+		expRes int64
+	}{
+		{
+			name:   "normal_case",
+			req:    "1234",
+			expRes: 1234,
+		},
+		{
+			name:   "normal_case_2",
+			req:    "01234",
+			expRes: 1234,
+		},
+		{
+			name:   "invalid_case",
+			req:    "abd4332",
+			expRes: 0,
+		},
+		{
+			name:   "invalid_case_2",
+			req:    "abc",
+			expRes: 0,
+		},
+		{
+			name:   "empty_case",
+			req:    "",
+			expRes: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := stringToInt(tt.req)
+			require.Equal(t, tt.expRes, res)
+		})
+	}
+}
