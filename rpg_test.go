@@ -44,6 +44,63 @@ func Test_toCSV(t *testing.T) {
 	}
 }
 
+func Test_toPlayer(t *testing.T) {
+	tests := []struct {
+		name       string
+		playersDTO []PlayerDTO
+		players    []Player
+	}{
+		{
+			name: "normal_case",
+			playersDTO: []PlayerDTO{{
+				Name:        "PersonOne",
+				Token:       "123456",
+				CurrentTask: "PHP",
+				Level:       "1",
+				Xp:          "100",
+				Health:      "100",
+			},
+			},
+			players: []Player{{
+				Name:        "PersonOne",
+				Token:       "123456",
+				CurrentTask: "PHP",
+				Level:       1,
+				Xp:          100,
+				Health:      100,
+			},
+			},
+		},
+		{
+			name: "empty_case",
+			playersDTO: []PlayerDTO{{
+				Name:        "",
+				Token:       "",
+				CurrentTask: "",
+				Level:       "",
+				Xp:          "",
+				Health:      "",
+			},
+			},
+			players: []Player{{
+				Name:        "",
+				Token:       "",
+				CurrentTask: "",
+				Level:       0,
+				Xp:          0,
+				Health:      0,
+			},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := toPlayer(tt.playersDTO)
+			require.Equal(t, tt.players, res)
+		})
+	}
+}
+
 func Test_setNewLevel(t *testing.T) {
 	tests := []struct {
 		name     string
