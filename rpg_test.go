@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/stretchr/testify/require"
+	"rpgMonster/models"
 	"testing"
 )
 
@@ -47,12 +48,12 @@ func Test_toCSV(t *testing.T) {
 func Test_toPlayer(t *testing.T) {
 	tests := []struct {
 		name       string
-		playersDTO []PlayerDTO
+		playersDTO []models.PlayerDTO
 		players    []Player
 	}{
 		{
 			name: "normal_case",
-			playersDTO: []PlayerDTO{{
+			playersDTO: []models.PlayerDTO{{
 				Name:        "PersonOne",
 				Token:       "123456",
 				CurrentTask: "PHP",
@@ -73,7 +74,7 @@ func Test_toPlayer(t *testing.T) {
 		},
 		{
 			name: "empty_case",
-			playersDTO: []PlayerDTO{{
+			playersDTO: []models.PlayerDTO{{
 				Name:        "",
 				Token:       "",
 				CurrentTask: "",

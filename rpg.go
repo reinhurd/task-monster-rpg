@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/gocarina/gocsv"
 	"log"
 	"os"
+	"rpgMonster/internal/ioservice"
+	"rpgMonster/models"
 	"strconv"
 	"strings"
 )
@@ -20,16 +21,6 @@ var DEFAULT_PLAYERS_DATA = [][]string{
 	{"name", "token", "currentTask", "level", "xp", "health"},
 	{"PersonOne", "123456", "PHP", "1", "100", "100"},
 	{"PersonTwo", "221459", "Golang", "1", "99", "100"},
-}
-
-// entites about gaming models of user when he got and doing tasks
-type PlayerDTO struct {
-	Name        string
-	Token       string //must be unique
-	CurrentTask string
-	Level       string
-	Xp          string
-	Health      string //percentage
 }
 
 type Player struct {
@@ -76,31 +67,9 @@ func (p *Player) completeTopic(topic string) error {
 	return nil
 }
 
-// create db with all existed players for future use
-func generatePlayers(players [][]string) {
-	csvFile, err := os.Create(PLAYERFILE)
-
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
-	}
-
-	csvwriter := csv.NewWriter(csvFile)
-
-	for _, player := range players {
-		_ = csvwriter.Write(player)
-	}
-	csvwriter.Flush()
-	csvFile.Close()
-}
-
 func loadPlayers() []Player {
-	f, err := os.Open(PLAYERFILE)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	cur := make([]PlayerDTO, 0, 100)
-	_ = gocsv.UnmarshalWithoutHeaders(f, &cur)
+	ios := ioservice.New()
+	cur := ios.LoadPlayers(PLAYERFILE)
 
 	return toPlayer(cur)
 }
@@ -170,7 +139,7 @@ func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 	pl.CurrentTask = strings.ToLower(topic)
 }
 
-func toPlayer(plDto []PlayerDTO) []Player {
+func toPlayer(plDto []models.PlayerDTO) []Player {
 	res := make([]Player, 0, len(plDto))
 	for i := range plDto {
 		res = append(res, Player{

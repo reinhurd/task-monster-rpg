@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gocarina/gocsv"
+	"rpgMonster/internal/ioservice"
 	"strings"
 
-	"encoding/csv"
 	"log"
 	"os"
 )
@@ -32,19 +32,12 @@ func (t *Topic) ToCSV() []string {
 }
 
 func saveTopics(topics []Topic) {
-	csvFile, err := os.Create(TOPICFILE)
-
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
-	}
-
-	csvwriter := csv.NewWriter(csvFile)
-
+	ios := ioservice.New()
+	req := make([][]string, 0)
 	for _, topic := range topics {
-		_ = csvwriter.Write(topic.ToCSV())
+		req = append(req, topic.ToCSV())
 	}
-	csvwriter.Flush()
-	csvFile.Close()
+	ios.SaveTopics(TOPICFILE, req)
 }
 
 func getTopics() []Topic {

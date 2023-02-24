@@ -8,6 +8,7 @@ import (
 	"github.com/valyala/fasthttp/reuseport"
 	"log"
 	"regexp"
+	"rpgMonster/internal/ioservice"
 	"strings"
 )
 
@@ -34,8 +35,9 @@ func main() {
 }
 
 func initApp() {
+	ios := ioservice.New()
 	saveTopics(DEFAULT_TOPICS)
-	generatePlayers(DEFAULT_PLAYERS_DATA)
+	ios.GeneratePlayers(PLAYERFILE, DEFAULT_PLAYERS_DATA)
 }
 
 func handler(ctx *fasthttp.RequestCtx) {
