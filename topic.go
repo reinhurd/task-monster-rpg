@@ -1,12 +1,8 @@
 package main
 
 import (
-	"github.com/gocarina/gocsv"
 	"rpgMonster/internal/ioservice"
 	"strings"
-
-	"log"
-	"os"
 )
 
 const TOPICFILE = "topics.csv"
@@ -41,15 +37,17 @@ func saveTopics(topics []Topic) {
 }
 
 func getTopics() []Topic {
-	f, err := os.Open(TOPICFILE)
-	if err != nil {
-		log.Fatal(err)
+	ios := ioservice.New()
+	resRaw := ios.GetTopics(TOPICFILE)
+	res := make([]Topic, 0)
+	for _, t := range resRaw {
+		res = append(res, Topic{
+			MainTheme: t.MainTheme,
+			Topics:    t.Topics,
+		})
 	}
-	defer f.Close()
-	cur := make([]Topic, 0, 100)
-	_ = gocsv.UnmarshalWithoutHeaders(f, &cur)
 
-	return cur
+	return res
 }
 
 func makeTopicsAsMap(cur []Topic) map[string]string {

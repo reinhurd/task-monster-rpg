@@ -1,11 +1,8 @@
 package main
 
 import (
-	"encoding/csv"
 	"errors"
 	"fmt"
-	"log"
-	"os"
 	"rpgMonster/internal/ioservice"
 	"rpgMonster/models"
 	"strconv"
@@ -17,10 +14,11 @@ const DEFAULT_REWARD = 10
 const DEFAULT_FINE = 20
 const DEFAULT_TOKEN_LENGHT = 10
 
-var DEFAULT_PLAYERS_DATA = [][]string{
-	{"name", "token", "currentTask", "level", "xp", "health"},
-	{"PersonOne", "123456", "PHP", "1", "100", "100"},
-	{"PersonTwo", "221459", "Golang", "1", "99", "100"},
+var PLAYERS_HEADER = []string{"name", "token", "task", "level", "xp", "health"}
+
+var DEFAULT_PLAYERS_DATA = []Player{
+	{"PersonOne", "123456", "PHP", 1, 100, 100},
+	{"PersonTwo", "221459", "Golang", 1, 99, 100},
 }
 
 type Player struct {
@@ -74,6 +72,16 @@ func loadPlayers() []Player {
 	return toPlayer(cur)
 }
 
+func savePlayers(players []Player) {
+	ios := ioservice.New()
+	req := make([][]string, 0)
+	req = append(req, PLAYERS_HEADER)
+	for _, player := range players {
+		req = append(req, player.toCSV())
+	}
+	ios.SavePlayers(PLAYERFILE, req)
+}
+
 func validatePlayerName(name string) error {
 	pls := loadPlayers()
 	for _, oldPl := range pls {
@@ -112,19 +120,7 @@ func setPlayers(plr *Player) {
 	}
 	resPlrs = append(resPlrs, *plr)
 
-	csvFile, err := os.Create(PLAYERFILE)
-
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
-	}
-
-	csvwriter := csv.NewWriter(csvFile)
-
-	for _, player := range resPlrs {
-		_ = csvwriter.Write(player.toCSV())
-	}
-	csvwriter.Flush()
-	csvFile.Close()
+	savePlayers(resPlrs)
 }
 
 func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {

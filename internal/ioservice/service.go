@@ -14,8 +14,8 @@ func New() *service {
 	return &service{}
 }
 
-// GeneratePlayers create db with all existed players for future use
-func (s *service) GeneratePlayers(file string, players [][]string) {
+// SavePlayers create db with all existed players for future use
+func (s *service) SavePlayers(file string, players [][]string) {
 	csvFile, err := os.Create(file)
 
 	if err != nil {
@@ -57,4 +57,16 @@ func (s *service) SaveTopics(file string, topics [][]string) {
 	}
 	csvwriter.Flush()
 	csvFile.Close()
+}
+
+func (s *service) GetTopics(file string) []models.TopicDTO {
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	cur := make([]models.TopicDTO, 0, 100)
+	_ = gocsv.UnmarshalWithoutHeaders(f, &cur)
+
+	return cur
 }
