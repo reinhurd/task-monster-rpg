@@ -1,7 +1,6 @@
-package main
+package taskrpg
 
 import (
-	"rpgMonster/internal/ioservice"
 	"strings"
 )
 
@@ -27,18 +26,16 @@ func (t *Topic) ToCSV() []string {
 	return []string{t.MainTheme, t.Topics}
 }
 
-func saveTopics(topics []Topic) {
-	ios := ioservice.New()
+func (s *Service) SaveTopics(topics []Topic) {
 	req := make([][]string, 0)
 	for _, topic := range topics {
 		req = append(req, topic.ToCSV())
 	}
-	ios.SaveTopics(TOPICFILE, req)
+	s.ios.SaveTopics(TOPICFILE, req)
 }
 
-func getTopics() []Topic {
-	ios := ioservice.New()
-	resRaw := ios.GetTopics(TOPICFILE)
+func (s *Service) getTopics() []Topic {
+	resRaw := s.ios.GetTopics(TOPICFILE)
 	res := make([]Topic, 0)
 	for _, t := range resRaw {
 		res = append(res, Topic{
@@ -50,7 +47,7 @@ func getTopics() []Topic {
 	return res
 }
 
-func makeTopicsAsMap(cur []Topic) map[string]string {
+func (s *Service) makeTopicsAsMap(cur []Topic) map[string]string {
 	res := make(map[string]string, len(cur))
 	for i := range cur {
 		if i == 0 {
@@ -62,12 +59,12 @@ func makeTopicsAsMap(cur []Topic) map[string]string {
 	return res
 }
 
-func saveNewTopics(theme string, topics string) error {
-	allTopics := getTopics()
+func (s *Service) SaveNewTopics(theme string, topics string) error {
+	allTopics := s.getTopics()
 	for _, t := range allTopics {
 		if strings.ToLower(t.MainTheme) == strings.ToLower(theme) {
 			t.Topics = strings.ToLower(topics)
-			saveTopics(allTopics)
+			s.SaveTopics(allTopics)
 
 			return nil
 		}
@@ -79,7 +76,7 @@ func saveNewTopics(theme string, topics string) error {
 	}
 
 	topicsToSave := append(allTopics, newTopic)
-	saveTopics(topicsToSave)
+	s.SaveTopics(topicsToSave)
 
 	return nil
 }

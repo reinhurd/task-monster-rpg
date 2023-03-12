@@ -1,4 +1,4 @@
-package main
+package taskrpg
 
 import (
 	"fmt"
@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-func findTopic(topic string) (string, error) {
-	topics := makeTopicsAsMap(getTopics())
+func (s *Service) FindTopic(topic string) (string, error) {
+	topics := s.makeTopicsAsMap(s.getTopics())
 	if val, ok := topics[topic]; ok {
-		return findRandomTasks(val), nil
+		return s.findRandomTasks(val), nil
 	}
 	return "", fmt.Errorf("%v not found", topic)
 }
 
-func findRandomTasks(tasks string) string {
+func (s *Service) findRandomTasks(tasks string) string {
 	splStrings := strings.Split(tasks, ",")
 	if len(splStrings) == 1 {
 		return splStrings[0]

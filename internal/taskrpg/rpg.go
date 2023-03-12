@@ -1,9 +1,8 @@
-package main
+package taskrpg
 
 import (
 	"errors"
 	"fmt"
-	"rpgMonster/internal/ioservice"
 	"rpgMonster/models"
 	"strconv"
 	"strings"
@@ -54,7 +53,7 @@ func (p *Player) completeTasksForXp(reward int64) {
 	p.Xp = p.Xp + reward
 }
 
-func (p *Player) completeTopic(topic string) error {
+func (p *Player) CompleteTopic(topic string) error {
 	if strings.ToLower(p.CurrentTask) != strings.ToLower(topic) {
 		return errors.New("topic is not set in player")
 	}
@@ -65,25 +64,23 @@ func (p *Player) completeTopic(topic string) error {
 	return nil
 }
 
-func loadPlayers() []Player {
-	ios := ioservice.New()
-	cur := ios.LoadPlayers(PLAYERFILE)
+func (s *Service) loadPlayers() []Player {
+	cur := s.ios.LoadPlayers(PLAYERFILE)
 
 	return toPlayer(cur)
 }
 
-func savePlayers(players []Player) {
-	ios := ioservice.New()
+func (s *Service) SavePlayers(players []Player) {
 	req := make([][]string, 0)
 	req = append(req, PLAYERS_HEADER)
 	for _, player := range players {
 		req = append(req, player.toCSV())
 	}
-	ios.SavePlayers(PLAYERFILE, req)
+	s.ios.SavePlayers(PLAYERFILE, req)
 }
 
-func validatePlayerName(name string) error {
-	pls := loadPlayers()
+func (s *Service) ValidatePlayerName(name string) error {
+	pls := s.loadPlayers()
 	for _, oldPl := range pls {
 		if strings.ToLower(oldPl.Name) == strings.ToLower(name) {
 			return fmt.Errorf("player name %s already exists", name)
@@ -92,25 +89,25 @@ func validatePlayerName(name string) error {
 	return nil
 }
 
-func createNewPlayer(name string) Player {
+func (s *Service) CreateNewPlayer(name string) Player {
 	player := Player{
 		Name:        name,
-		Token:       generateToken(),
+		Token:       s.generateToken(),
 		CurrentTask: "",
 		Level:       1,
 		Xp:          0,
 		Health:      0,
 	}
-	setPlayers(&player)
+	s.SetPlayers(&player)
 	return player
 }
 
-func generateToken() string {
+func (s *Service) generateToken() string {
 	return RandStringBytesMaskImpr(DEFAULT_TOKEN_LENGHT)
 }
 
-func setPlayers(plr *Player) {
-	players := loadPlayers()
+func (s *Service) SetPlayers(plr *Player) {
+	players := s.loadPlayers()
 	resPlrs := make([]Player, 0, len(players))
 	for _, oldPl := range players {
 		//todo test this
@@ -120,10 +117,10 @@ func setPlayers(plr *Player) {
 	}
 	resPlrs = append(resPlrs, *plr)
 
-	savePlayers(resPlrs)
+	s.SavePlayers(resPlrs)
 }
 
-func setTopicAndRemoveOldToPlayer(topic string, pl *Player) {
+func (s *Service) SetTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 	if topic == "" {
 		return
 	}
@@ -156,4 +153,24 @@ func stringToInt(s string) int64 {
 		return int64(res)
 	}
 	return 0
+}
+
+func (s *Service) ValidatePlayer(token string) (*Player, error) {
+	if len(token) < 1 {
+		return nil, errors.New("no token in input")
+	}
+	players := s.loadPlayers()
+	for _, player := range players {
+		if strings.ToLower(player.Token) == strings.ToLower(token) {
+			return &player, nil
+		}
+	}
+	return nil, errors.New("no token found for players")
+}
+
+func (s *Service) ValidateTheme(th string) error {
+	if len(th) < 2 {
+		return errors.New("invalid theme")
+	}
+	return nil
 }

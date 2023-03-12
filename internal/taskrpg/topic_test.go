@@ -1,4 +1,4 @@
-package main
+package taskrpg
 
 import (
 	"github.com/stretchr/testify/require"
