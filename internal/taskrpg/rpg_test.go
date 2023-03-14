@@ -1,6 +1,7 @@
 package taskrpg
 
 import (
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	ios "rpgMonster/internal/ioservice"
 	"rpgMonster/models"
@@ -248,69 +249,72 @@ func Test_completeTopic(t *testing.T) {
 	}
 }
 
-//todo rewrite
-//func Test_setTopicAndRemoveOldToPlayer(t *testing.T) {
-//	tests := []struct {
-//		name     string
-//		player   Player
-//		newtopic string
-//		expRes   int64
-//	}{
-//		{
-//			name: "normal_case",
-//			player: Player{
-//				Name:        "PersonOne",
-//				Token:       "123456",
-//				CurrentTask: "PHP",
-//				Level:       1,
-//				Xp:          100,
-//				Health:      100,
-//			},
-//			newtopic: "PHP2",
-//			expRes:   80,
-//		},
-//		{
-//			name: "invalid_topic",
-//			player: Player{
-//				Name:        "",
-//				Token:       "",
-//				CurrentTask: "",
-//				Level:       0,
-//				Xp:          0,
-//				Health:      0,
-//			},
-//			newtopic: "",
-//			expRes:   0,
-//		},
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			setTopicAndRemoveOldToPlayer(tt.newtopic, &tt.player)
-//			require.Equal(t, tt.expRes, tt.player.Xp)
-//		})
-//	}
-//}
-//todo rewrite
-//func Test_generateToken(t *testing.T) {
-//	tests := []struct {
-//		name   string
-//		expRes func(res string)
-//	}{
-//		{
-//			name: "normal_case",
-//			expRes: func(res string) {
-//				require.NotEmpty(t, res)
-//				require.Equal(t, DEFAULT_TOKEN_LENGHT, len(res))
-//			},
-//		},
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			res := generateToken()
-//			tt.expRes(res)
-//		})
-//	}
-//}
+func Test_setTopicAndRemoveOldToPlayer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		player   Player
+		newtopic string
+		expRes   int64
+	}{
+		{
+			name: "normal_case",
+			player: Player{
+				Name:        "PersonOne",
+				Token:       "123456",
+				CurrentTask: "PHP",
+				Level:       1,
+				Xp:          100,
+				Health:      100,
+			},
+			newtopic: "PHP2",
+			expRes:   80,
+		},
+		{
+			name: "invalid_topic",
+			player: Player{
+				Name:        "",
+				Token:       "",
+				CurrentTask: "",
+				Level:       0,
+				Xp:          0,
+				Health:      0,
+			},
+			newtopic: "",
+			expRes:   0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(NewMockIoservice(ctrl))
+			s.SetTopicAndRemoveOldToPlayer(tt.newtopic, &tt.player)
+			require.Equal(t, tt.expRes, tt.player.Xp)
+		})
+	}
+}
+
+func Test_generateToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name   string
+		expRes func(res string)
+	}{
+		{
+			name: "normal_case",
+			expRes: func(res string) {
+				require.NotEmpty(t, res)
+				require.Equal(t, DEFAULT_TOKEN_LENGHT, len(res))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(NewMockIoservice(ctrl))
+			res := s.generateToken()
+			tt.expRes(res)
+		})
+	}
+}
 
 func Test_stringToInt(t *testing.T) {
 	tests := []struct {

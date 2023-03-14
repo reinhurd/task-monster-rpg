@@ -1,10 +1,10 @@
 package taskrpg
 
 type Service struct {
-	ios ioservice
+	ios Ioservice
 }
 
-func New(ios ioservice) *Service {
+func New(ios Ioservice) *Service {
 	return &Service{
 		ios: ios,
 	}
