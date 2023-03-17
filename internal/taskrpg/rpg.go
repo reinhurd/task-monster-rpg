@@ -58,7 +58,6 @@ func (p *Player) CompleteTopic(topic string) error {
 		return errors.New("topic is not set in player")
 	}
 	p.CurrentTask = ""
-	//todo test for all math cases
 	p.completeTasksForXp(DEFAULT_REWARD)
 	p.setNewLevel()
 	return nil

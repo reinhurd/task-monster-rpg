@@ -27,6 +27,9 @@ func (t *Topic) ToCSV() []string {
 }
 
 func (s *Service) SaveTopics(topics []Topic) {
+	if len(topics) == 0 {
+		return
+	}
 	req := make([][]string, 0)
 	for _, topic := range topics {
 		req = append(req, topic.ToCSV())
