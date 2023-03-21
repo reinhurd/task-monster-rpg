@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/reuseport"
 	"log"
 	"regexp"
+
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/reuseport"
+
 	"rpgMonster/internal/ioservice"
 	"rpgMonster/internal/taskrpg"
 )
@@ -19,7 +21,7 @@ const (
 )
 
 func main() {
-	//todo add context
+	// todo add context
 	initApp()
 	fmt.Printf("Starting server...\n")
 
@@ -95,7 +97,7 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 
 	resp := make(map[string]string)
 	resp["result"] = fmt.Sprintf("your new level is %v your new xp is %v", player.Level, player.Xp)
-	//saving
+	// saving
 	s.SetPlayers(player)
 
 	jsonResp, err := json.Marshal(resp)
@@ -185,7 +187,7 @@ func findTaskHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 		return
 	}
 	resp := make(map[string]string)
-	//set a random topic to a player
+	// set a random topic to a player
 	curRandTopic, err := s.FindTopic(string(topic))
 	if err != nil {
 		ctx.Error("400 bad request", fasthttp.StatusBadRequest)

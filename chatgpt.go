@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/valyala/fasthttp"
 	"io"
 	"net/http"
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/valyala/fasthttp"
 )
 
 var headerContentTypeJson = []byte("application/json")
@@ -105,12 +106,12 @@ func getChat(question string) string {
 	if err == nil {
 		statusCode := resp.StatusCode()
 		respBody := resp.Body()
-		//fmt.Printf("DEBUG Response: %s\n", respBody)
+		// fmt.Printf("DEBUG Response: %s\n", respBody)
 		if statusCode == http.StatusOK {
 			respEntity := &ChatGPTResponse{}
 			err = json.Unmarshal(respBody, respEntity)
 			if err == io.EOF || err == nil {
-				//fmt.Printf("DEBUG Parsed Response: %v\n", respEntity)
+				// fmt.Printf("DEBUG Parsed Response: %v\n", respEntity)
 				fmt.Println(respEntity.Choices[0].Text)
 				return respEntity.Choices[0].Text
 			} else {

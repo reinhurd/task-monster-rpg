@@ -3,9 +3,10 @@ package taskrpg
 import (
 	"errors"
 	"fmt"
-	"rpgMonster/models"
 	"strconv"
 	"strings"
+
+	"rpgMonster/models"
 )
 
 const PLAYERFILE = "players.csv"
@@ -22,11 +23,11 @@ var DEFAULT_PLAYERS_DATA = []Player{
 
 type Player struct {
 	Name        string
-	Token       string //must be unique
+	Token       string // must be unique
 	CurrentTask string
 	Level       int64
 	Xp          int64
-	Health      int64 //percentage
+	Health      int64 // percentage
 }
 
 func (p *Player) toCSV() []string {
@@ -109,7 +110,7 @@ func (s *Service) SetPlayers(plr *Player) {
 	players := s.loadPlayers()
 	resPlrs := make([]Player, 0, len(players))
 	for _, oldPl := range players {
-		//todo test this
+		// todo test this
 		if oldPl.Token != plr.Token {
 			resPlrs = append(resPlrs, oldPl)
 		}
@@ -124,7 +125,7 @@ func (s *Service) SetTopicAndRemoveOldToPlayer(topic string, pl *Player) {
 		return
 	}
 	if pl.CurrentTask != "" {
-		//fine player for undoing task
+		// fine player for undoing task
 		pl.Xp = pl.Xp - DEFAULT_FINE
 		fmt.Printf("The player %s was fined by amount %v for not completed task", pl.Name, DEFAULT_FINE)
 	}

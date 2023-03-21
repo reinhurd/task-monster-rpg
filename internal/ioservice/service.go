@@ -2,9 +2,11 @@ package ioservice
 
 import (
 	"encoding/csv"
-	"github.com/gocarina/gocsv"
 	"log"
 	"os"
+
+	"github.com/gocarina/gocsv"
+
 	"rpgMonster/models"
 )
 

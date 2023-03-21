@@ -1,10 +1,12 @@
 package taskrpg
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
 	"rpgMonster/models"
-	"testing"
 )
 
 func Test_topicToCSV(t *testing.T) {
@@ -108,6 +110,34 @@ func Test_getTopics(t *testing.T) {
 			mock := NewMockIoservice(ctrl)
 			tt.mockFunc(mock)
 			res := New(mock).getTopics()
+			require.Equal(t, tt.expRes, res)
+		})
+	}
+}
+
+func Test_makeTopicsAsMap(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	tests := []struct {
+		name   string
+		req    []Topic
+		expRes map[string]string
+	}{
+		{
+			name:   "normal_case",
+			req:    DEFAULT_TOPICS,
+			expRes: map[string]string{"golang": "Concurrency,Parallelism,Goroutine,Frameworks", "php": "Concurrency,Parallelism,PHP9,Frameworks"},
+		},
+		{
+			name:   "empty_case",
+			req:    []Topic{},
+			expRes: map[string]string{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			res := New(mock).makeTopicsAsMap(tt.req)
 			require.Equal(t, tt.expRes, res)
 		})
 	}
