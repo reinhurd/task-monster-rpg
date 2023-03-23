@@ -1,11 +1,13 @@
 package taskrpg
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
 	ios "rpgMonster/internal/ioservice"
 	"rpgMonster/models"
-	"testing"
 )
 
 func Test_toCSV(t *testing.T) {
@@ -384,6 +386,93 @@ func Test_findRandomTasks(t *testing.T) {
 			s := New(iosMock)
 			res := s.findRandomTasks(tt.tasks)
 			require.Equal(t, tt.expRes, res)
+		})
+	}
+}
+
+func Test_loadPlayers(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		mockFunc func(mock *MockIoservice)
+		expRes   []Player
+	}{
+		{
+			name: "normal_case",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().
+					LoadPlayers(PLAYERFILE).
+					Return([]models.PlayerDTO{{Name: "1", Token: "1", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
+			},
+			expRes: []Player{{
+				Name:        "1",
+				Token:       "1",
+				CurrentTask: "1",
+				Level:       1,
+				Xp:          1,
+				Health:      1,
+			}},
+		},
+		{
+			name: "empty_case",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().
+					LoadPlayers(PLAYERFILE).
+					Return(nil)
+			},
+			expRes: []Player{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			s := New(mock)
+			tt.mockFunc(mock)
+			res := s.loadPlayers()
+			require.Equal(t, tt.expRes, res)
+		})
+	}
+}
+
+func Test_savePlayers(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		req      []Player
+		mockFunc func(mock *MockIoservice)
+	}{
+		{
+			name: "normal_case",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().
+					SavePlayers(PLAYERFILE, [][]string{{"name", "token", "task", "level", "xp", "health"}, {"1", "1", "1", "1", "1", "1"}}).
+					Return()
+			},
+			req: []Player{{
+				Name:        "1",
+				Token:       "1",
+				CurrentTask: "1",
+				Level:       1,
+				Xp:          1,
+				Health:      1,
+			}},
+		},
+		{
+			name: "empty_case",
+			req:  []Player{},
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().
+					SavePlayers(PLAYERFILE, [][]string{{"name", "token", "task", "level", "xp", "health"}}).
+					Return()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			s := New(mock)
+			tt.mockFunc(mock)
+			s.SavePlayers(tt.req)
 		})
 	}
 }
