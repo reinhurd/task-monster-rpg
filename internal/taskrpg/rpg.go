@@ -80,6 +80,9 @@ func (s *Service) SavePlayers(players []Player) {
 }
 
 func (s *Service) ValidatePlayerName(name string) error {
+	if len(name) == 0 {
+		return errors.New("player name is empty")
+	}
 	pls := s.loadPlayers()
 	for _, oldPl := range pls {
 		if strings.ToLower(oldPl.Name) == strings.ToLower(name) {

@@ -1,6 +1,8 @@
 package taskrpg
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -473,6 +475,90 @@ func Test_savePlayers(t *testing.T) {
 			s := New(mock)
 			tt.mockFunc(mock)
 			s.SavePlayers(tt.req)
+		})
+	}
+}
+
+func Test_ValidatePlayerName(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		req      string
+		mockFunc func(mock *MockIoservice)
+		expErr   error
+	}{
+		{
+			name: "player_exists",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return([]models.PlayerDTO{{Name: "TeST", Token: "1", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
+			},
+			req:    "TEst",
+			expErr: fmt.Errorf("player name %s already exists", "TEst"),
+		},
+		{
+			name: "normal_case",
+			req:  "test",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return(nil)
+			},
+			expErr: nil,
+		},
+		{
+			name:     "empty_name",
+			req:      "",
+			mockFunc: func(mock *MockIoservice) {},
+			expErr:   errors.New("player name is empty"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			s := New(mock)
+			tt.mockFunc(mock)
+			err := s.ValidatePlayerName(tt.req)
+			require.Equal(t, tt.expErr, err)
+		})
+	}
+}
+
+func Test_CreateNewPlayer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		req      string
+		mockFunc func(mock *MockIoservice)
+		expRes   Player
+	}{
+		{
+			name: "player_exists",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return([]models.PlayerDTO{{Name: "TeST", Token: "1", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
+				mock.EXPECT().SavePlayers(PLAYERFILE, gomock.Any()).Return()
+			},
+			req:    "TEst",
+			expRes: Player{Name: "TEst", CurrentTask: "", Level: 1, Xp: 0, Health: 0},
+		},
+		{
+			name: "empty_case",
+			req:  "test",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return(nil)
+				mock.EXPECT().SavePlayers(PLAYERFILE, gomock.Any()).Return()
+			},
+			expRes: Player{Name: "test", CurrentTask: "", Level: 1, Xp: 0, Health: 0},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			s := New(mock)
+			tt.mockFunc(mock)
+			res := s.CreateNewPlayer(tt.req)
+			require.Equal(t, tt.expRes.Name, res.Name)
+			require.Equal(t, tt.expRes.CurrentTask, res.CurrentTask)
+			require.Equal(t, tt.expRes.Level, res.Level)
+			require.Equal(t, tt.expRes.Xp, res.Xp)
+			require.Equal(t, tt.expRes.Health, res.Health)
 		})
 	}
 }
