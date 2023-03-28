@@ -562,3 +562,34 @@ func Test_CreateNewPlayer(t *testing.T) {
 		})
 	}
 }
+
+func Test_ValidateTheme(t *testing.T) {
+	tests := []struct {
+		name   string
+		theme  string
+		expErr error
+	}{
+		{
+			name:   "empty_string",
+			theme:  "",
+			expErr: errors.New("invalid theme"),
+		},
+		{
+			name:  "all_correct",
+			theme: "test,test,test",
+		},
+		{
+			name:   "single_value",
+			theme:  "1",
+			expErr: errors.New("invalid theme"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			iosMock := ios.New()
+			s := New(iosMock)
+			err := s.ValidateTheme(tt.theme)
+			require.Equal(t, tt.expErr, err)
+		})
+	}
+}
