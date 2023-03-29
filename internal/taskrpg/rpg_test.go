@@ -563,6 +563,51 @@ func Test_CreateNewPlayer(t *testing.T) {
 	}
 }
 
+func Test_ValidatePlayerByToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	tests := []struct {
+		name     string
+		req      string
+		mockFunc func(mock *MockIoservice)
+		expRes   *Player
+		expErr   error
+	}{
+		{
+			name: "player_exists",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return([]models.PlayerDTO{{Name: "TeST", Token: "12345", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
+			},
+			req:    "12345",
+			expRes: &Player{Name: "TeST", Token: "12345", CurrentTask: "1", Level: 1, Xp: 1, Health: 1},
+		},
+		{
+			name: "empty_case",
+			req:  "43214",
+			mockFunc: func(mock *MockIoservice) {
+				mock.EXPECT().LoadPlayers(PLAYERFILE).Return([]models.PlayerDTO{{Name: "TeST", Token: "12345", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
+			},
+			expRes: nil,
+			expErr: errors.New("no token found for players"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			s := New(mock)
+			tt.mockFunc(mock)
+			player, err := s.ValidatePlayerByToken(tt.req)
+			require.Equal(t, tt.expErr, err)
+			if err == nil {
+				require.Equal(t, tt.expRes.CurrentTask, player.CurrentTask)
+				require.Equal(t, tt.expRes.Level, player.Level)
+				require.Equal(t, tt.expRes.Xp, player.Xp)
+				require.Equal(t, tt.expRes.Health, player.Health)
+				require.Equal(t, tt.expRes.Token, player.Token)
+			}
+		})
+	}
+}
+
 func Test_ValidateTheme(t *testing.T) {
 	tests := []struct {
 		name   string

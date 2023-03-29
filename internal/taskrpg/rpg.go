@@ -158,7 +158,7 @@ func stringToInt(s string) int64 {
 	return 0
 }
 
-func (s *Service) ValidatePlayer(token string) (*Player, error) {
+func (s *Service) ValidatePlayerByToken(token string) (*Player, error) {
 	if len(token) < 1 {
 		return nil, errors.New("no token in input")
 	}

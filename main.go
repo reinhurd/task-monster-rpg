@@ -84,7 +84,7 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
-	player, err := s.ValidatePlayer(string(token))
+	player, err := s.ValidatePlayerByToken(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
@@ -135,7 +135,7 @@ func generateTopicsHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	token := ctx.QueryArgs().Peek(TOKEN)
 	theme := string(ctx.QueryArgs().Peek(THEME))
-	_, err := s.ValidatePlayer(string(token))
+	_, err := s.ValidatePlayerByToken(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
@@ -177,7 +177,7 @@ func findTaskHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 	token := ctx.QueryArgs().Peek(TOKEN)
 	topic := ctx.QueryArgs().Peek(TOPIC)
 
-	pl, err := s.ValidatePlayer(string(token))
+	pl, err := s.ValidatePlayerByToken(string(token))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 		return
