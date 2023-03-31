@@ -581,13 +581,20 @@ func Test_ValidatePlayerByToken(t *testing.T) {
 			expRes: &Player{Name: "TeST", Token: "12345", CurrentTask: "1", Level: 1, Xp: 1, Health: 1},
 		},
 		{
-			name: "empty_case",
+			name: "player_not_exists",
 			req:  "43214",
 			mockFunc: func(mock *MockIoservice) {
 				mock.EXPECT().LoadPlayers(PLAYERFILE).Return([]models.PlayerDTO{{Name: "TeST", Token: "12345", CurrentTask: "1", Level: "1", Xp: "1", Health: "1"}})
 			},
 			expRes: nil,
 			expErr: errors.New("no token found for players"),
+		},
+		{
+			name:     "empty_case",
+			req:      "",
+			mockFunc: func(mock *MockIoservice) {},
+			expRes:   nil,
+			expErr:   errors.New("no token in input"),
 		},
 	}
 	for _, tt := range tests {

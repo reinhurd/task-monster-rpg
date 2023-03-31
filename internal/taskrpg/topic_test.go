@@ -115,6 +115,52 @@ func Test_getTopics(t *testing.T) {
 	}
 }
 
+func Test_SaveNewTopics(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	tests := []struct {
+		name          string
+		theme, topics string
+		mockFunc      func(mock *MockIoservice)
+		expErr        error
+	}{
+		{
+			name:   "normal_case",
+			theme:  "TestNew",
+			topics: "TestNew1,TestNew2,TestNew3",
+			mockFunc: func(mock *MockIoservice) {
+				ret := models.TopicDTO{
+					MainTheme: "Test",
+					Topics:    "Test1,Test2,Test3",
+				}
+				mock.EXPECT().GetTopics(TOPICFILE).Return([]models.TopicDTO{ret})
+				mock.EXPECT().SaveTopics(TOPICFILE, [][]string{{"Test", "Test1,Test2,Test3"}, {"testnew", "testnew1,testnew2,testnew3"}})
+			},
+		},
+		{
+			name:   "replace_case",
+			theme:  "Test",
+			topics: "TestNew1,TestNew2,TestNew3",
+			mockFunc: func(mock *MockIoservice) {
+				ret := models.TopicDTO{
+					MainTheme: "Test",
+					Topics:    "Test1,Test2,Test3",
+				}
+				mock.EXPECT().GetTopics(TOPICFILE).Return([]models.TopicDTO{ret})
+				mock.EXPECT().SaveTopics(TOPICFILE, [][]string{{"test", "testnew1,testnew2,testnew3"}})
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := NewMockIoservice(ctrl)
+			tt.mockFunc(mock)
+			err := New(mock).SaveNewTopics(tt.theme, tt.topics)
+			require.Equal(t, tt.expErr, err)
+		})
+	}
+}
+
 func Test_makeTopicsAsMap(t *testing.T) {
 	ctrl := gomock.NewController(t)
 

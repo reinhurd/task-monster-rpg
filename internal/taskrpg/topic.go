@@ -39,6 +39,7 @@ func (s *Service) SaveTopics(topics []Topic) {
 
 func (s *Service) getTopics() []Topic {
 	resRaw := s.ios.GetTopics(TOPICFILE)
+
 	res := make([]Topic, 0)
 	for _, t := range resRaw {
 		res = append(res, Topic{
@@ -53,7 +54,7 @@ func (s *Service) getTopics() []Topic {
 func (s *Service) makeTopicsAsMap(cur []Topic) map[string]string {
 	res := make(map[string]string, len(cur))
 	for i := range cur {
-		if i == 0 {
+		if cur[i].MainTheme == DEFAULT_TOPICS[0].MainTheme {
 			continue
 		}
 		res[cur[i].MainTheme] = cur[i].Topics
@@ -64,9 +65,10 @@ func (s *Service) makeTopicsAsMap(cur []Topic) map[string]string {
 
 func (s *Service) SaveNewTopics(theme string, topics string) error {
 	allTopics := s.getTopics()
-	for _, t := range allTopics {
-		if strings.ToLower(t.MainTheme) == strings.ToLower(theme) {
-			t.Topics = strings.ToLower(topics)
+	for i := range allTopics {
+		if strings.ToLower(allTopics[i].MainTheme) == strings.ToLower(theme) {
+			allTopics[i].MainTheme = strings.ToLower(theme)
+			allTopics[i].Topics = strings.ToLower(topics)
 			s.SaveTopics(allTopics)
 
 			return nil
@@ -74,8 +76,8 @@ func (s *Service) SaveNewTopics(theme string, topics string) error {
 	}
 
 	newTopic := Topic{
-		MainTheme: theme,
-		Topics:    topics,
+		MainTheme: strings.ToLower(theme),
+		Topics:    strings.ToLower(topics),
 	}
 
 	topicsToSave := append(allTopics, newTopic)
