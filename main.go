@@ -70,7 +70,7 @@ func handler(ctx *fasthttp.RequestCtx) {
 	// http://localhost:8080/create_player?name=john
 	case "/create_player":
 		if string(ctx.Method()) == "GET" {
-			createPlayer(ctx, s)
+			createPlayerHandler(ctx, s)
 		}
 		return
 	default:
@@ -108,7 +108,7 @@ func completeTaskHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 	return
 }
 
-func createPlayer(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
+func createPlayerHandler(ctx *fasthttp.RequestCtx, s *taskrpg.Service) {
 	ctx.SetContentType("application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	name := string(ctx.QueryArgs().Peek(NAME))

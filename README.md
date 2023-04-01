@@ -1,27 +1,27 @@
 ##Task monster rpg
 
-Концепция:
+Concept:
 
-1. Юзер задает цель - изучить новый язык\доделать проект и т.д.
+1. The user sets a goal - to learn a new language, complete a project, etc.
 
-2. В цели прописываются ключевые особенности - сроки, источники информации, полезные ссылки, и т.д.
+2. Key features are specified in the goal - deadlines, sources of information, useful links, etc.
 
-3. По полезным ссылкам парсятся какие-то "концепции" (через chatGPT)
+3. Some "concepts" are parsed from useful links (using ChatGPT)
 
-4. "Концепции" выдаются пользователю, он должен по ним либо что-то отписать, либо заучить, либо выполнить действие
+4. "Concepts" are presented to the user, who must either write something based on them, memorize them, or perform an action
 
-5. Все это геймифицировано, таска - это рейд, действия несут экспу, кто будет монстром пока вопрос)
+5. All of this is gamified, tasks are like raids, actions give experience points, who will be the monster is still a question)
 
-Отличия от habitRPG - наличие парсера для сбора информации/оформления ее в задания и мотивация пользователя на ее выполнение.
-Смысл - всегда есть информация по проекту, которую пользователь упустил. В некоторых цели порой сложно придумать, куда же двигаться дальше.
+Differences from HabitRPG - the presence of a parser for collecting information/formatting it into tasks and motivating the user to complete them.
+The point is that there is always project information that the user has missed. In some goals, it can be difficult to figure out where to move next.
 
-Контакт с пользователем через бота, пока телеграм.
+Contact with the user through a bot, currently via Telegram.
 
-Схема работы апи: - сет топика по токену (юзерИД или иное) и получение списка связанных тем
+API operation scheme: - set the topic by token (userID or other) and receive a list of related topics
 
 ###todo
-0. Интеграция с телеграм-ботом
-1. Хранение данных в поднимаемой БД
-2. Мейк-файл для разворачивания сервиса
-3. Перенести все в докер
-4. Make a history with visualiation for the player story
+- Storing data in a raised database
+- Integration with a Telegram bot
+- Makefile for deploying the service
+- Move everything to Docker
+- Create a history with visualization for the player's story
