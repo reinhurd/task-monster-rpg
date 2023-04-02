@@ -1,4 +1,4 @@
-package main
+package chatgpt
 
 import (
 	"encoding/json"
@@ -86,7 +86,7 @@ func sendRequest(reqEnt []byte) (*fasthttp.Response, error) {
 	return resp, err
 }
 
-func getChat(question string) string {
+func GetChat(question string) string {
 	setupChatClient()
 
 	if question == "" {

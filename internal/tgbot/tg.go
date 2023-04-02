@@ -1,4 +1,4 @@
-package main
+package tgbot
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 )
 
 // todo add bot for works with telegram
-func startBot() {
+func StartBot() {
 	bot, err := tgbotapi.NewBotAPI("MyAwesomeBotToken")
 	if err != nil {
 		log.Panic(err)
