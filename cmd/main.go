@@ -10,6 +10,7 @@ import (
 	"rpgMonster/internal/http_handler"
 	"rpgMonster/internal/ioservice"
 	"rpgMonster/internal/taskrpg"
+	"rpgMonster/internal/tgbot"
 )
 
 func main() {
@@ -32,6 +33,8 @@ func initApp() {
 	s := taskrpg.New(ios)
 	s.SaveTopics(taskrpg.DEFAULT_TOPICS)
 	s.SavePlayers(taskrpg.DEFAULT_PLAYERS_DATA)
+
+	tgbot.StartBot()
 
 	return
 }

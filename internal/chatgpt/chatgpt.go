@@ -17,10 +17,10 @@ var headerContentTypeJson = []byte("application/json")
 var client *fasthttp.Client
 
 const (
-	CHATGPT_API_URL     = "https://api.openai.com/v1/completions"
-	CHATGRPMODEL        = "text-davinci-003"
-	DEFAULT_MAX_TOKENS  = 4000
-	DEFAULT_TEMPERATURE = 1.0
+	apiChatGptUrl      = "https://api.openai.com/v1/completions"
+	chatGptModel       = "text-davinci-003"
+	defaultMaxTokens   = 4000
+	defaultTemperature = 1.0
 )
 
 type ChatGPTEntity struct {
@@ -75,10 +75,10 @@ func sendRequest(reqEnt []byte) (*fasthttp.Response, error) {
 	reqTimeout := time.Duration(10000) * time.Millisecond
 
 	req := fasthttp.AcquireRequest()
-	req.SetRequestURI(CHATGPT_API_URL)
+	req.SetRequestURI(apiChatGptUrl)
 	req.Header.SetMethod(fasthttp.MethodPost)
 	req.Header.SetContentTypeBytes(headerContentTypeJson)
-	req.Header.Set("Authorization", PRIVATE_TOKEN)
+	req.Header.Set("Authorization", privateToken)
 	req.SetBodyRaw(reqEnt)
 	resp := fasthttp.AcquireResponse()
 	err := client.DoTimeout(req, resp, reqTimeout)
@@ -94,10 +94,10 @@ func GetChat(question string) string {
 	}
 
 	reqEntity := &ChatGPTEntity{
-		Model:       CHATGRPMODEL,
+		Model:       chatGptModel,
 		Prompt:      question,
-		MaxTokens:   DEFAULT_MAX_TOKENS,
-		Temperature: DEFAULT_TEMPERATURE,
+		MaxTokens:   defaultMaxTokens,
+		Temperature: defaultTemperature,
 	}
 	reqEntityBytes, _ := json.Marshal(reqEntity)
 

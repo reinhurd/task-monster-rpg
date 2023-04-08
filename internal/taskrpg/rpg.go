@@ -113,7 +113,6 @@ func (s *Service) SetPlayers(plr *Player) {
 	players := s.loadPlayers()
 	resPlrs := make([]Player, 0, len(players))
 	for _, oldPl := range players {
-		// todo test this
 		if oldPl.Token != plr.Token && oldPl.Token != "token" {
 			resPlrs = append(resPlrs, oldPl)
 		}

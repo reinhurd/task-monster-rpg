@@ -6,9 +6,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// todo add bot for works with telegram
 func StartBot() {
-	bot, err := tgbotapi.NewBotAPI("MyAwesomeBotToken")
+	bot, err := tgbotapi.NewBotAPI(privateToken)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -23,10 +22,13 @@ func StartBot() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
+		var resp string
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, resp)
 			msg.ReplyToMessageID = update.Message.MessageID
 
 			bot.Send(msg)
