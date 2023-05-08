@@ -10,7 +10,7 @@ Concept:
 
 4. "Concepts" are presented to the user, who must either write something based on them, memorize them, or perform an action
 
-5. All of this is gamified, tasks are like raids, actions give experience points, who will be the monster is still a question)
+5. All of this is gamified, tasks are like raids, actions give experience points, who will be the monster is still a question
 
 Differences from HabitRPG - the presence of a parser for collecting information/formatting it into tasks and motivating the user to complete them.
 The point is that there is always project information that the user has missed. In some goals, it can be difficult to figure out where to move next.
