@@ -1,12 +1,26 @@
 package tgbot
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+func loadTokenFromEnv() (string, error) {
+	token, ok := os.LookupEnv("TG_API_SECRET_KEY")
+	if !ok {
+		return "", fmt.Errorf("environment variable OPENAI_API_SECRET_KEY not set")
+	}
+	return token, nil
+}
+
 func StartBot() {
+	privateToken, err := loadTokenFromEnv()
+	if err != nil {
+		log.Fatalf("error in loadTokenFromEnv: %v", err)
+	}
 	bot, err := tgbotapi.NewBotAPI(privateToken)
 	if err != nil {
 		log.Panic(err)

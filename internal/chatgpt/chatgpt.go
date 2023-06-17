@@ -71,8 +71,20 @@ func setupChatClient() {
 	}
 }
 
+func loadTokenFromEnv() (string, error) {
+	token, ok := os.LookupEnv("OPENAI_API_SECRET_KEY")
+	if !ok {
+		return "", fmt.Errorf("environment variable OPENAI_API_SECRET_KEY not set")
+	}
+	return token, nil
+}
+
 func sendRequest(reqEnt []byte) (*fasthttp.Response, error) {
 	reqTimeout := time.Duration(10000) * time.Millisecond
+	privateToken, err := loadTokenFromEnv()
+	if err != nil {
+		return nil, err
+	}
 
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(apiChatGptUrl)
@@ -81,7 +93,7 @@ func sendRequest(reqEnt []byte) (*fasthttp.Response, error) {
 	req.Header.Set("Authorization", privateToken)
 	req.SetBodyRaw(reqEnt)
 	resp := fasthttp.AcquireResponse()
-	err := client.DoTimeout(req, resp, reqTimeout)
+	err = client.DoTimeout(req, resp, reqTimeout)
 	fasthttp.ReleaseRequest(req)
 	return resp, err
 }
