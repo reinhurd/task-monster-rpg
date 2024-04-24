@@ -1,5 +1,5 @@
 .idea
-passgit
-topics.csv
-players.csv
-token.go
+/vendor
+secret.env
+tmp*
+*.csv
