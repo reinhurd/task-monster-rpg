@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"rpgMonster/internal/clients/telegram"
+	"rpgMonster/internal/core"
 	"rpgMonster/internal/transport"
 
 	"github.com/rs/zerolog/log"
@@ -32,6 +33,14 @@ func main() {
 		err = tgbot.HandleUpdate(updChan)
 		if err != nil {
 			panic(err)
+		}
+	}()
+
+	go func() {
+		//battleEngine
+		for {
+			w := core.Battle()
+			log.Info().Msgf("Winner: %s", w)
 		}
 	}()
 
