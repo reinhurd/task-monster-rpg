@@ -39,7 +39,7 @@ func main() {
 	go func() {
 		//battleEngine
 		for {
-			w := core.Battle()
+			w := core.Battle(core.GeneratePlayers())
 			log.Info().Msgf("Winner: %s", w)
 		}
 	}()
