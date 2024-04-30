@@ -39,8 +39,27 @@ func main() {
 	go func() {
 		//battleEngine
 		for {
-			w := core.Battle(core.GeneratePlayers())
-			log.Info().Msgf("Winner: %s", w)
+			victCount := 0
+			p1 := core.GeneratePlayer()
+			m := core.GenerateMonster(1)
+			w := core.Battle(&p1, m)
+			if w {
+				victCount++
+				log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
+				for i := 0; i < 5; i++ {
+					m = core.GenerateMonster(i)
+					w = core.Battle(&p1, m)
+					if w {
+						victCount++
+						log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
+					} else {
+						log.Info().Msgf("Monster won!")
+						break
+					}
+				}
+			} else {
+				log.Info().Msgf("Monster won!")
+			}
 		}
 	}()
 
