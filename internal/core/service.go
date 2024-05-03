@@ -39,6 +39,9 @@ func GeneratePlayer() Player {
 }
 
 func GenerateMonster(difficulty int) (m Monster) {
+	if difficulty < 1 {
+		difficulty = 1
+	}
 	m = Monster{"Monster", randomInt(1, 10) * difficulty, randomInt(1, 10) * difficulty, randomInt(1, 10) * difficulty}
 
 	return

@@ -46,7 +46,7 @@ func main() {
 			if w {
 				victCount++
 				log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
-				for i := 0; i < 5; i++ {
+				for i := 1; i < 5; i++ {
 					m = core.GenerateMonster(i)
 					w = core.Battle(&p1, m)
 					if w {
