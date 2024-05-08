@@ -15,8 +15,6 @@ type Player struct {
 	Level     int
 }
 
-//todo add level up logic - which level is x * xp
-
 type Monster struct {
 	Name string
 	HP   int
@@ -47,6 +45,16 @@ func GenerateMonster(difficulty int) (m Monster) {
 	return
 }
 
+func AddXP(p *Player, xp int) {
+	p.CurrentXP += xp
+	if p.CurrentXP >= p.Level*10 {
+		p.Level++
+		p.HP += 10
+		p.Atk += 5
+	}
+	log.Info().Msgf("LevelUp! %s, HP: %d, Atk: %d, XP: %d, Level: %d", p.Name, p.HP, p.Atk, p.CurrentXP, p.Level)
+}
+
 //todo add some weapons and armor?
 
 func Battle(p1 *Player, m Monster) bool {
@@ -67,7 +75,7 @@ func Battle(p1 *Player, m Monster) bool {
 	if p1.HP > m.HP {
 		//did the player win?
 		log.Info().Msgf("%s won!", p1.Name)
-		p1.CurrentXP += m.XP
+		AddXP(p1, m.XP)
 		return true
 	}
 
