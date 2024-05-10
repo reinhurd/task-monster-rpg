@@ -28,6 +28,10 @@ func main() {
 		panic(err)
 	}
 
+	//gptClient := gpt.New(resty.New())
+	//resp, err := gptClient.GetCompletion()
+	//fmt.Println(resp.Choices[0].Message.Content)
+
 	go func() {
 		updChan := tgbot.GetUpdatesChan()
 		err = tgbot.HandleUpdate(updChan)
