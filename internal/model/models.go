@@ -21,3 +21,23 @@ type GPTAnswer struct {
 	} `json:"usage"`
 	SystemFingerprint interface{} `json:"system_fingerprint"`
 }
+
+type Player struct {
+	Name        string
+	HP          int
+	Atk         int
+	CurrentXP   int
+	Level       int
+	Goal        string
+	GoalDetails []string //to add some details as goal progressed - this is generally reward
+	Dailies     map[string]struct {
+		Completed bool
+	} //as daily progressed, you became stronger
+}
+
+type Monster struct {
+	Name string
+	HP   int
+	Atk  int
+	XP   int
+}

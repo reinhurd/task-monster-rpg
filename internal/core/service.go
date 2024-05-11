@@ -5,22 +5,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+
+	"rpgMonster/internal/model"
 )
-
-type Player struct {
-	Name      string
-	HP        int
-	Atk       int
-	CurrentXP int
-	Level     int
-}
-
-type Monster struct {
-	Name string
-	HP   int
-	Atk  int
-	XP   int
-}
 
 func randomInt(min, max int) int {
 	if min >= max {
@@ -29,23 +16,23 @@ func randomInt(min, max int) int {
 	return min + rand.Intn(max)
 }
 
-func GeneratePlayer() Player {
+func GeneratePlayer() model.Player {
 	//generate random int from 1 to 10
-	p := Player{"Player", randomInt(1, 10), randomInt(1, 10), 0, 1}
+	p := model.Player{Name: "Player", HP: randomInt(1, 10), Atk: randomInt(1, 10), Level: 1}
 
 	return p
 }
 
-func GenerateMonster(difficulty int) (m Monster) {
+func GenerateMonster(difficulty int) (m model.Monster) {
 	if difficulty < 1 {
 		difficulty = 1
 	}
-	m = Monster{"Monster", randomInt(1, 10) * difficulty, randomInt(1, 10) * difficulty, randomInt(1, 10) * difficulty}
+	m = model.Monster{Name: "Monster", HP: randomInt(1, 10) * difficulty, Atk: randomInt(1, 10) * difficulty, XP: randomInt(1, 10) * difficulty}
 
 	return
 }
 
-func AddXP(p *Player, xp int) {
+func AddXP(p *model.Player, xp int) {
 	p.CurrentXP += xp
 	if p.CurrentXP >= p.Level*10 {
 		p.Level++
@@ -57,7 +44,7 @@ func AddXP(p *Player, xp int) {
 
 //todo add some weapons and armor?
 
-func Battle(p1 *Player, m Monster) bool {
+func Battle(p1 *model.Player, m model.Monster) bool {
 	log.Info().Msgf("Player: %s, HP: %d, Atk: %d, XP: %d, Level: %d", p1.Name, p1.HP, p1.Atk, p1.CurrentXP, p1.Level)
 	log.Info().Msgf("Monster: %s, HP: %d, Atk: %d, XP: %d", m.Name, m.HP, m.Atk, m.XP)
 	//each player attacks the other until one of them dies in 2 seconds
