@@ -22,7 +22,7 @@ func (c *Client) GetCompletion() (model.GPTAnswer, error) {
 	req.SetHeader("Authorization", "Bearer "+c.token)
 	//todo refactoring
 	req.SetBody(map[string]interface{}{
-		"model": "gpt-4",
+		"model": "gpt-4o",
 		"messages": []map[string]string{
 			{
 				"role":    "system",
@@ -30,7 +30,7 @@ func (c *Client) GetCompletion() (model.GPTAnswer, error) {
 			},
 			{
 				"role":    "user",
-				"content": "Compose a poem that explains the concept of recursion in programming.",
+				"content": "Compose a poem that explains the concept of recursion in programming. Make it two strings long.",
 			},
 		},
 	})
