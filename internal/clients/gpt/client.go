@@ -9,12 +9,16 @@ import (
 	"rpgMonster/internal/model"
 )
 
+const (
+	modelName = "gpt-4o"
+)
+
 type Client struct {
 	restyCl *resty.Client
 	token   string
 }
 
-func (c *Client) GetCompletion() (model.GPTAnswer, error) {
+func (c *Client) GetCompletion(systemContent, userContent string) (model.GPTAnswer, error) {
 	var gptAnswer model.GPTAnswer
 
 	req := c.restyCl.R()
@@ -22,15 +26,15 @@ func (c *Client) GetCompletion() (model.GPTAnswer, error) {
 	req.SetHeader("Authorization", "Bearer "+c.token)
 	//todo refactoring
 	req.SetBody(map[string]interface{}{
-		"model": "gpt-4o",
+		"model": modelName,
 		"messages": []map[string]string{
 			{
 				"role":    "system",
-				"content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair.",
+				"content": systemContent,
 			},
 			{
 				"role":    "user",
-				"content": "Compose a poem that explains the concept of recursion in programming. Make it two strings long.",
+				"content": userContent,
 			},
 		},
 	})
