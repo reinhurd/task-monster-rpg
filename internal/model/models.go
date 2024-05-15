@@ -29,10 +29,13 @@ type Player struct {
 	CurrentXP   int
 	Level       int
 	Goal        string
-	GoalDetails []string //to add some details as goal progressed - this is generally reward
-	Dailies     map[string]struct {
-		Completed bool
-	} //as daily progressed, you became stronger
+	GoalDetails []string         //to add some details as goal progressed - this is generally reward
+	Dailies     map[string]Daily //as daily progressed, you became stronger
+}
+
+type Daily struct {
+	Task      string
+	Completed bool
 }
 
 type Monster struct {
