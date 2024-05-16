@@ -83,50 +83,52 @@ func main() {
 func exampleWayOfUser(gpt *gpt.Client, p1 *model.Player) {
 	//todo clear "sure" and other not csv stuff
 	//todo separate daily tasks
-	resp, err := gpt.GetCompletion("You a personal assistant, helping people to set concrete detailed steps to achieve goals", "I want to learn php")
+	//if player.json doesn't exist
+	if _, err := os.Stat("player.json"); os.IsNotExist(err) {
+		resp, err := gpt.GetCompletion("You a personal assistant, helping people to set concrete detailed steps to achieve goals", "I want to learn php")
+		if err != nil {
+			log.Error().Err(err).Msg("error getting completion")
+			return
+		}
+
+		//set goal
+		p1.Goal = "learn PHP"
+		p1.GoalDetails = append(p1.GoalDetails, resp.Choices[0].Message.Content)
+		resp, err = gpt.GetCompletion("You a personal assistant, helping people to set concrete detailed steps to achieve goals", "Write a daily tasks to achieve goal learn PHP"+
+			", in format: 'daily task: task description' and delimiter is comma")
+		if err != nil {
+			log.Error().Err(err).Msg("error getting completion")
+			return
+		}
+		var dailyMap = make(map[string]model.Daily)
+		dailyMap["php"] = model.Daily{Task: resp.Choices[0].Message.Content, Completed: false}
+		p1.Dailies = dailyMap
+		os.WriteFile("player.json", []byte(fmt.Sprintf("%+v", p1)), 0644)
+	}
+	playerFile, err := os.ReadFile("player.json")
 	if err != nil {
-		log.Error().Err(err).Msg("error getting completion")
+		log.Error().Err(err).Msg("error reading player.json")
 		return
 	}
-	p1.Goal = "learn PHP"
-	p1.GoalDetails = append(p1.GoalDetails, resp.Choices[0].Message.Content)
-	resp, err = gpt.GetCompletion("You a personal assistant, helping people to set concrete detailed steps to achieve goals", "Write a daily tasks to achieve goal learn PHP"+
-		", in format: 'daily task: task description' and delimiter is comma")
-	if err != nil {
-		log.Error().Err(err).Msg("error getting completion")
-		return
-	}
-	var dailyMap = make(map[string]model.Daily)
-	dailyMap["php"] = model.Daily{Task: resp.Choices[0].Message.Content, Completed: false}
-	p1.Dailies = dailyMap
-	os.WriteFile("player.json", []byte(fmt.Sprintf("%+v", p1)), 0644)
+	//read json from file
+	_, err = fmt.Sscanf(string(playerFile), "%+v", p1)
 
 	//battle engine run regularly - when the player set goal
-	//	go func() {
-	//		//battleEngine
-	//		for {
-	//			victCount := 0
-	//			m := core.GenerateMonster(1)
-	//			w := core.Battle(&p1, m)
-	//			if w {
-	//				victCount++
-	//				log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
-	//				for i := 1; i < 5; i++ {
-	//					m = core.GenerateMonster(i)
-	//					w = core.Battle(&p1, m)
-	//					if w {
-	//						victCount++
-	//						log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
-	//					} else {
-	//						log.Info().Msgf("Monster won!")
-	//						break
-	//					}
-	//				}
-	//			} else {
-	//				log.Info().Msgf("Monster won!")
-	//			}
-	//		}
-	//	}()
+	go func() {
+		//battleEngine
+		for {
+			victCount := 0
+			m := core.GenerateMonster(1)
+			w := core.Battle(p1, m)
+			if w {
+				victCount++
+				log.Info().Msgf("Player won! XP: %d, Victories: %d", p1.CurrentXP, victCount)
+			} else {
+				log.Info().Msgf("Monster won!")
+				p1.CurrentXP = 0
+			}
+		}
+	}()
 
 	//if player call api to complete daily, he became stronger
 
