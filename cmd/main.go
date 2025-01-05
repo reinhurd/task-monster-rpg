@@ -16,7 +16,6 @@ import (
 	"rpgMonster/internal/model"
 	"rpgMonster/internal/transport"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/joho/godotenv"
 
 	"github.com/rs/zerolog/log"
@@ -24,7 +23,17 @@ import (
 
 func main() {
 	if err := godotenv.Load("secret.env"); err != nil {
-		panic(err)
+		log.Warn().Msg("secret.env does not exist")
+		requiredEnvVars := []string{
+			"TG_SECRET_KEY",
+			"MONGODB_URI",
+		}
+
+		for _, envVar := range requiredEnvVars {
+			if os.Getenv(envVar) == "" {
+				log.Fatal().Msgf("Required environment variable %s is not set", envVar)
+			}
+		}
 	}
 
 	router := transport.SetupRouter()
@@ -35,9 +44,9 @@ func main() {
 		panic(err)
 	}
 
-	gptClient := gpt.New(resty.New())
-	p1 := core.GeneratePlayer()
-	exampleWayOfUser(gptClient, &p1)
+	// gptClient := gpt.New(resty.New())
+	// p1 := core.GeneratePlayer()
+	// exampleWayOfUser(gptClient, &p1)
 
 	go func() {
 		updChan := tgbot.GetUpdatesChan()
