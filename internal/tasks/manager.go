@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,6 +15,7 @@ import (
 
 type Task struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	BizId       string             `bson:"biz_id"`
 	Title       string             `bson:"title"`
 	Description string             `bson:"description"`
 	Executor    string             `bson:"executor"` // ID of the user executing the task
@@ -43,6 +45,7 @@ func CreateTask(ctx context.Context, task *Task) error {
 	m := NewManager()
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
+	task.BizId = uuid.New().String()
 
 	result, err := m.collection.InsertOne(ctx, task)
 	if err != nil {
@@ -68,8 +71,8 @@ func UpdateTask(ctx context.Context, task *Task) error {
 	m := NewManager()
 	_, err := m.collection.UpdateOne(
 		ctx,
-		bson.M{"_id": task.ID},
-		bson.M{"$set": task},
+		bson.M{"biz_id": task.BizId},
+		bson.M{"$set": bson.M{"completed": task.Completed}},
 	)
 	return err
 }

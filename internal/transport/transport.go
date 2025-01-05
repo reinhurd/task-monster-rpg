@@ -52,5 +52,18 @@ func SetupRouter() *gin.Engine {
 		c.String(http.StatusOK, "Task Id: "+id)
 	})
 
+	r.PUT("api/tasks/:id/status", func(c *gin.Context) {
+		id := c.Param("id")
+		err := tasks.UpdateTask(context.Background(), &tasks.Task{
+			BizId:     id,
+			Completed: true,
+		})
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		} else {
+			c.String(http.StatusOK, "Task updated")
+		}
+	})
+
 	return r
 }
