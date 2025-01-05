@@ -4,3 +4,4 @@ secret.env
 tmp*
 *.csv
 *.json
+*.exe

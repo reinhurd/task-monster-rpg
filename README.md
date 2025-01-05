@@ -13,3 +13,11 @@ Concept:
 - Add chatgpt client
 - Mechanism for fill users goals after they completed task
 - Storage for users and their tasks
+
+## Task monster secret.env file
+```
+TG_SECRET_KEY=your_telegram_bot_token
+GPT_TOKEN=
+DATABASE_URL=
+MONGODB_URI=mongodb://localhost:27017
+```

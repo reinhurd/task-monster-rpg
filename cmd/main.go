@@ -10,13 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"github.com/joho/godotenv"
 	"rpgMonster/internal/clients/gpt"
 	"rpgMonster/internal/clients/telegram"
 	"rpgMonster/internal/core"
 	"rpgMonster/internal/model"
 	"rpgMonster/internal/transport"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/joho/godotenv"
 
 	"github.com/rs/zerolog/log"
 )
@@ -26,8 +27,10 @@ func main() {
 		panic(err)
 	}
 
-	r := transport.SetupRouter()
+	router := transport.SetupRouter()
+
 	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true)
+
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +49,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: r,
+		Handler: router,
 	}
 
 	go func() {
@@ -63,7 +66,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err = srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		_, errTg := tgbot.SendToLastChat("Service is shutting down with error")
 		if errTg != nil {
 			log.Info().Msgf("Error sending to telegram: %v", errTg)
