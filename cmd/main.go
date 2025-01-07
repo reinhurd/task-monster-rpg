@@ -62,7 +62,7 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Err(err)
 		}
 	}()
@@ -75,7 +75,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err = srv.Shutdown(ctx); err != nil {
 		_, errTg := tgbot.SendToLastChat("Service is shutting down with error")
 		if errTg != nil {
 			log.Info().Msgf("Error sending to telegram: %v", errTg)

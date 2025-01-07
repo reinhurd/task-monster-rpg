@@ -23,6 +23,8 @@ type Task struct {
 	Completed   bool               `bson:"completed"`
 	CreatedAt   time.Time          `bson:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at"`
+	Deadline    primitive.DateTime `bson:"deadline"`
+	Tags        []string           `bson:"tags"`
 }
 
 type Manager struct {
@@ -35,7 +37,7 @@ func NewManager() *Manager {
 		log.Err(err).Msg("Failed to connect to MongoDB")
 	}
 
-	db := client.Database("checklist")
+	db := client.Database("task-monster-rpg")
 	return &Manager{
 		collection: db.Collection("tasks"),
 	}

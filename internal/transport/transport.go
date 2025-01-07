@@ -12,6 +12,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	//// Just ping
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
@@ -62,6 +63,43 @@ func SetupRouter() *gin.Engine {
 			c.String(http.StatusInternalServerError, err.Error())
 		} else {
 			c.String(http.StatusOK, "Task updated")
+		}
+	})
+
+	//// User logic
+	r.POST("api/users", func(c *gin.Context) {
+		var user struct {
+			Login    string `json:"login"`
+			Password string `json:"password"`
+		}
+		err := c.ShouldBindBodyWithJSON(&user)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		_, err = core.CreateNewUser(user.Login, user.Password)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		} else {
+			c.String(http.StatusOK, "User created")
+		}
+	})
+
+	r.POST("api/users/login", func(c *gin.Context) {
+		var user struct {
+			Login    string `json:"login"`
+			Password string `json:"password"`
+		}
+		err := c.ShouldBindBodyWithJSON(&user)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		userId, err := core.CheckPassword(user.Login, user.Password)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		} else {
+			c.String(http.StatusOK, userId)
 		}
 	})
 
