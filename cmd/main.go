@@ -10,31 +10,43 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"github.com/joho/godotenv"
 	"rpgMonster/internal/clients/gpt"
 	"rpgMonster/internal/clients/telegram"
 	"rpgMonster/internal/core"
 	"rpgMonster/internal/model"
 	"rpgMonster/internal/transport"
 
+	"github.com/joho/godotenv"
+
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
 	if err := godotenv.Load("secret.env"); err != nil {
-		panic(err)
+		log.Warn().Msg("secret.env does not exist")
+		requiredEnvVars := []string{
+			"TG_SECRET_KEY",
+			"MONGODB_URI",
+		}
+
+		for _, envVar := range requiredEnvVars {
+			if os.Getenv(envVar) == "" {
+				log.Fatal().Msgf("Required environment variable %s is not set", envVar)
+			}
+		}
 	}
 
-	r := transport.SetupRouter()
+	router := transport.SetupRouter()
+
 	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true)
+
 	if err != nil {
 		panic(err)
 	}
 
-	gptClient := gpt.New(resty.New())
-	p1 := core.GeneratePlayer()
-	exampleWayOfUser(gptClient, &p1)
+	// gptClient := gpt.New(resty.New())
+	// p1 := core.GeneratePlayer()
+	// exampleWayOfUser(gptClient, &p1)
 
 	go func() {
 		updChan := tgbot.GetUpdatesChan()
@@ -46,11 +58,11 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: r,
+		Handler: router,
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Err(err)
 		}
 	}()
