@@ -12,6 +12,11 @@ import (
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"rpgMonster/internal/model"
+)
+
+const (
+	LOGIN = "login"
 )
 
 // GetCurrentUserID extracts the user ID from the HTTP Authorization header.
@@ -37,6 +42,7 @@ func GetCurrentUserID(headers http.Header) (string, error) {
 	// return userID, nil
 }
 
+// todo move to db_client pkg
 func CreateNewUser(login string, password string) (id string, err error) {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -45,7 +51,7 @@ func CreateNewUser(login string, password string) (id string, err error) {
 	}
 	defer client.Disconnect(context.TODO())
 
-	collection := client.Database("task-monster-rpg").Collection("users")
+	collection := client.Database(model.DB_NAME).Collection(model.USERS_COLLECTION)
 
 	salt := make([]byte, 16)
 	_, err = rand.Read(salt)
@@ -60,7 +66,7 @@ func CreateNewUser(login string, password string) (id string, err error) {
 	passwordHash := hex.EncodeToString(hash.Sum(nil))
 	saltHex := hex.EncodeToString(salt)
 
-	var user User = User{
+	var user = model.User{
 		BizID:    uuid.New().String(),
 		Login:    login,
 		Password: passwordHash,
@@ -85,9 +91,9 @@ func CheckPassword(login string, password string) (id string, err error) {
 	}
 	defer client.Disconnect(context.TODO())
 
-	collection := client.Database("task-monster-rpg").Collection("users")
-	var user User
-	err = collection.FindOne(context.TODO(), map[string]string{"login": login}).Decode(&user)
+	collection := client.Database(model.DB_NAME).Collection(model.USERS_COLLECTION)
+	var user model.User
+	err = collection.FindOne(context.TODO(), map[string]string{LOGIN: login}).Decode(&user)
 	if err != nil {
 		return "", err
 	}
@@ -106,11 +112,4 @@ func CheckPassword(login string, password string) (id string, err error) {
 	}
 
 	return user.BizID, nil
-}
-
-type User struct {
-	BizID    string `bson:"biz_id"`
-	Login    string `bson:"login"`
-	Password string `bson:"password"`
-	Salt     string `bson:"salt"`
 }

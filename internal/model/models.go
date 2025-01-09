@@ -1,5 +1,11 @@
 package model
 
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 type GPTAnswer struct {
 	ID      string `json:"id"`
 	Object  string `json:"object"`
@@ -22,25 +28,24 @@ type GPTAnswer struct {
 	SystemFingerprint interface{} `json:"system_fingerprint"`
 }
 
-type Player struct {
-	Name        string
-	HP          int
-	Atk         int
-	CurrentXP   int
-	Level       int
-	Goal        string
-	GoalDetails []string         //to add some details as goal progressed - this is generally reward
-	Dailies     map[string]Daily //as daily progressed, you became stronger
+type User struct {
+	BizID     string `bson:"biz_id"`
+	Login     string `bson:"login"`
+	Password  string `bson:"password"`
+	Salt      string `bson:"salt"`
+	StrikeDay int    `bson:"strike_day"`
 }
 
-type Daily struct {
-	Task      string
-	Completed bool
-}
-
-type Monster struct {
-	Name string
-	HP   int
-	Atk  int
-	XP   int
+type Task struct {
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	BizId       string             `bson:"biz_id"`
+	Title       string             `bson:"title"`
+	Description string             `bson:"description"`
+	Executor    string             `bson:"executor"` // ID of the user executing the task
+	Reviewer    *string            `bson:"reviewer"` // Optional ID of the reviewing user
+	Completed   bool               `bson:"completed"`
+	CreatedAt   time.Time          `bson:"created_at"`
+	UpdatedAt   time.Time          `bson:"updated_at"`
+	Deadline    primitive.DateTime `bson:"deadline"`
+	Tags        []string           `bson:"tags"`
 }

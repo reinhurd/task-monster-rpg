@@ -19,5 +19,5 @@ Concept:
 TG_SECRET_KEY=your_telegram_bot_token
 GPT_TOKEN=
 DATABASE_URL=
-MONGODB_URI=mongodb://localhost:27017
+MONGODB_URI=mongodb://localhost:27018
 ```

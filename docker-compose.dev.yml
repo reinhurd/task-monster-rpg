@@ -7,9 +7,10 @@ services:
       - "8080:8080"
     depends_on:
       - mongodb
+    env_file:
+      - ./secret.env
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/dev
-      - TG_SECRET_KEY=
 
   mongodb:
     image: mongo:latest

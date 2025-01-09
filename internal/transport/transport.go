@@ -3,23 +3,33 @@ package transport
 import (
 	"context"
 	"net/http"
-	"rpgMonster/internal/core"
-	"rpgMonster/internal/tasks"
 
 	"github.com/gin-gonic/gin"
+	"rpgMonster/internal/core"
+	"rpgMonster/internal/model"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(svc *core.Service) *gin.Engine {
 	r := gin.Default()
 
 	//// Just ping
 	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
+		c.String(http.StatusOK, svc.DoSomething())
 	})
 
 	// Get active tasks for current user
 	r.GET("api/tasks", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
+	})
+
+	r.GET("api/tasks/create/gpt", func(c *gin.Context) {
+		req := c.Query("req")
+		task, err := svc.CreateTaskFromGPTByRequest(req)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		} else {
+			c.JSON(http.StatusOK, task)
+		}
 	})
 
 	// Get task by Id. Need to check rights
@@ -30,7 +40,7 @@ func SetupRouter() *gin.Engine {
 
 	// Create a new task
 	r.POST("api/tasks", func(c *gin.Context) {
-		var task tasks.Task
+		var task model.Task
 
 		if err := c.ShouldBindJSON(&task); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -38,7 +48,7 @@ func SetupRouter() *gin.Engine {
 		}
 		task.Executor, _ = core.GetCurrentUserID(c.Request.Header)
 
-		err := tasks.CreateTask(context.Background(), &task)
+		err := svc.CreateTask(context.Background(), &task)
 		if err != nil {
 			responseText := err.Error()
 			c.String(http.StatusInternalServerError, responseText)
@@ -55,7 +65,7 @@ func SetupRouter() *gin.Engine {
 
 	r.PUT("api/tasks/:id/status", func(c *gin.Context) {
 		id := c.Param("id")
-		err := tasks.UpdateTask(context.Background(), &tasks.Task{
+		err := svc.UpdateTask(context.Background(), &model.Task{
 			BizId:     id,
 			Completed: true,
 		})

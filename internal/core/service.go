@@ -1,70 +1,69 @@
 package core
 
 import (
-	"math/rand"
-	"time"
+	"context"
 
 	"github.com/rs/zerolog/log"
-
+	"rpgMonster/internal/clients/gpt"
+	"rpgMonster/internal/clients/telegram"
 	"rpgMonster/internal/model"
+	"rpgMonster/internal/tasks"
 )
 
-func randomInt(min, max int) int {
-	if min >= max {
-		return min
-	}
-	return min + rand.Intn(max)
+const (
+	systemPrompt = "You a personal assistant, helping people to set concrete detailed steps to achieve goals"
+)
+
+type Service struct {
+	gptClient   *gpt.Client
+	taskManager *tasks.Manager
+	tgBot       *telegram.TGBot
 }
 
-func GeneratePlayer() model.Player {
-	//generate random int from 1 to 10
-	p := model.Player{Name: "Player", HP: randomInt(1, 10), Atk: randomInt(1, 10), Level: 1}
-
-	return p
+func (s *Service) DoSomething() string {
+	return "Hello, world!"
 }
 
-func GenerateMonster(difficulty int) (m model.Monster) {
-	if difficulty < 1 {
-		difficulty = 1
-	}
-	m = model.Monster{Name: "Monster", HP: randomInt(1, 10) * difficulty, Atk: randomInt(1, 10) * difficulty, XP: randomInt(1, 10) * difficulty}
-
-	return
+func (s *Service) CreateTask(ctx context.Context, task *model.Task) (err error) {
+	return s.taskManager.CreateTask(ctx, task)
 }
 
-func AddXP(p *model.Player, xp int) {
-	p.CurrentXP += xp
-	if p.CurrentXP >= p.Level*10 {
-		p.Level++
-		p.HP += 10
-		p.Atk += 5
-	}
-	log.Info().Msgf("LevelUp! %s, HP: %d, Atk: %d, XP: %d, Level: %d", p.Name, p.HP, p.Atk, p.CurrentXP, p.Level)
+func (s *Service) UpdateTask(ctx context.Context, task *model.Task) (err error) {
+	return s.taskManager.UpdateTask(ctx, task)
 }
 
-//todo add some weapons and armor?
-
-func Battle(p1 *model.Player, m model.Monster) bool {
-	log.Info().Msgf("Player: %s, HP: %d, Atk: %d, XP: %d, Level: %d", p1.Name, p1.HP, p1.Atk, p1.CurrentXP, p1.Level)
-	log.Info().Msgf("Monster: %s, HP: %d, Atk: %d, XP: %d", m.Name, m.HP, m.Atk, m.XP)
-	//each player attacks the other until one of them dies in 2 seconds
-	for p1.HP > 0 && m.HP > 0 {
-		//todo add some initiative logic
-		p1.HP -= randomInt(1, m.Atk)
-		m.HP -= randomInt(1, p1.Atk)
-
-		//log.Info().Msgf("%s HP: %d, %s HP: %d", p1.Name, p1.HP, m.Name, m.HP)
-
-		wait := time.After(2 * time.Second)
-		<-wait
+func (s *Service) RunTG() {
+	updChan := s.tgBot.GetUpdatesChan()
+	err := s.tgBot.HandleUpdate(updChan)
+	if err != nil {
+		panic(err)
 	}
+}
 
-	if p1.HP > m.HP {
-		//did the player win?
-		log.Info().Msgf("%s won!", p1.Name)
-		AddXP(p1, m.XP)
-		return true
+func (s *Service) CreateTaskFromGPTByRequest(req string) (task *model.Task, err error) {
+	//set goal
+	goal := "learn " + req
+	resp, err := s.gptClient.GetCompletion(systemPrompt, "Write a one single daily task to achieve goal "+goal+
+		", in format: 'daily task: task description: requirements to check' and delimiter is comma")
+	if err != nil {
+		log.Error().Err(err).Msg("error getting completion")
+		return
 	}
+	//todo add user ID somehow
+	task = &model.Task{}
+	task.Title = goal
+	task.Description = resp.Choices[0].Message.Content
+	err = s.taskManager.CreateTask(context.TODO(), task)
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
+}
 
-	return false
+func NewService(gptClient *gpt.Client, taskManager *tasks.Manager, tgBot *telegram.TGBot) *Service {
+	return &Service{
+		gptClient:   gptClient,
+		taskManager: taskManager,
+		tgBot:       tgBot,
+	}
 }

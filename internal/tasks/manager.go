@@ -11,40 +11,34 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"rpgMonster/internal/model"
 )
 
-type Task struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	BizId       string             `bson:"biz_id"`
-	Title       string             `bson:"title"`
-	Description string             `bson:"description"`
-	Executor    string             `bson:"executor"` // ID of the user executing the task
-	Reviewer    *string            `bson:"reviewer"` // Optional ID of the reviewing user
-	Completed   bool               `bson:"completed"`
-	CreatedAt   time.Time          `bson:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at"`
-	Deadline    primitive.DateTime `bson:"deadline"`
-	Tags        []string           `bson:"tags"`
-}
+const (
+	BIZ_ID    = "biz_id"
+	COMPLETED = "completed"
+	EXECUTOR  = "executor"
+	REVIEWER  = "reviewer"
+)
 
 type Manager struct {
 	collection *mongo.Collection
 }
 
+// todo move to db_client pkg
 func NewManager() *Manager {
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to MongoDB")
 	}
 
-	db := client.Database("task-monster-rpg")
+	db := client.Database(model.DB_NAME)
 	return &Manager{
-		collection: db.Collection("tasks"),
+		collection: db.Collection(model.TASKS_COLLECTION),
 	}
 }
 
-func CreateTask(ctx context.Context, task *Task) error {
-	m := NewManager()
+func (m *Manager) CreateTask(ctx context.Context, task *model.Task) error {
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
 	task.BizId = uuid.New().String()
@@ -58,42 +52,36 @@ func CreateTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func GetTask(ctx context.Context, id primitive.ObjectID) (*Task, error) {
-	var task Task
-	m := NewManager()
-	err := m.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&task)
+func (m *Manager) GetTask(ctx context.Context, bizID string) (task *model.Task, err error) {
+	err = m.collection.FindOne(ctx, bson.M{BIZ_ID: bizID}).Decode(&task)
 	if err != nil {
 		return nil, err
 	}
-	return &task, nil
+	return task, nil
 }
 
-func UpdateTask(ctx context.Context, task *Task) error {
+func (m *Manager) UpdateTask(ctx context.Context, task *model.Task) error {
 	task.UpdatedAt = time.Now()
-	m := NewManager()
 	_, err := m.collection.UpdateOne(
 		ctx,
-		bson.M{"biz_id": task.BizId},
-		bson.M{"$set": bson.M{"completed": task.Completed}},
+		bson.M{BIZ_ID: task.BizId},
+		bson.M{"$set": bson.M{COMPLETED: task.Completed}},
 	)
 	return err
 }
 
-func DeleteTask(ctx context.Context, id primitive.ObjectID) error {
-	m := NewManager()
-	_, err := m.collection.DeleteOne(ctx, bson.M{"_id": id})
+func (m *Manager) DeleteTask(ctx context.Context, bizID string) error {
+	_, err := m.collection.DeleteOne(ctx, bson.M{BIZ_ID: bizID})
 	return err
 }
 
-func ListTasks(ctx context.Context) ([]Task, error) {
-	m := NewManager()
+func (m *Manager) ListTasks(ctx context.Context) (tasks []model.Task, err error) {
 	cursor, err := m.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var tasks []Task
 	if err = cursor.All(ctx, &tasks); err != nil {
 		return nil, err
 	}
@@ -102,15 +90,13 @@ func ListTasks(ctx context.Context) ([]Task, error) {
 }
 
 // Get tasks by executor
-func GetTasksByExecutor(ctx context.Context, executorID string) ([]Task, error) {
-	m := NewManager()
-	cursor, err := m.collection.Find(ctx, bson.M{"executor": executorID})
+func (m *Manager) GetTasksByExecutor(ctx context.Context, executorID string) (tasks []model.Task, err error) {
+	cursor, err := m.collection.Find(ctx, bson.M{EXECUTOR: executorID})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var tasks []Task
 	if err = cursor.All(ctx, &tasks); err != nil {
 		return nil, err
 	}
@@ -119,15 +105,13 @@ func GetTasksByExecutor(ctx context.Context, executorID string) ([]Task, error) 
 }
 
 // Get tasks by reviewer
-func GetTasksByReviewer(ctx context.Context, reviewerID string) ([]Task, error) {
-	m := NewManager()
-	cursor, err := m.collection.Find(ctx, bson.M{"reviewer": reviewerID})
+func (m *Manager) GetTasksByReviewer(ctx context.Context, reviewerID string) (tasks []model.Task, err error) {
+	cursor, err := m.collection.Find(ctx, bson.M{REVIEWER: reviewerID})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var tasks []Task
 	if err = cursor.All(ctx, &tasks); err != nil {
 		return nil, err
 	}
