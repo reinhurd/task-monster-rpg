@@ -11,11 +11,11 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/joho/godotenv"
+	"rpgMonster/internal/clients/dbclient"
 	"rpgMonster/internal/clients/gpt"
-	"rpgMonster/internal/clients/telegram"
 	"rpgMonster/internal/core"
-	"rpgMonster/internal/tasks"
-	"rpgMonster/internal/transport"
+	"rpgMonster/internal/transport/api"
+	"rpgMonster/internal/transport/telegram"
 
 	"github.com/rs/zerolog/log"
 )
@@ -35,20 +35,24 @@ func main() {
 		}
 	}
 
-	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true)
+	gptClient := gpt.New(resty.New())
+	taskManager := dbclient.NewManager()
+	service := core.NewService(gptClient, taskManager)
 
+	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true, service)
 	if err != nil {
 		panic(err)
 	}
-
-	gptClient := gpt.New(resty.New())
-
-	taskManager := tasks.NewManager()
-	service := core.NewService(gptClient, taskManager, tgbot)
-	router := transport.SetupRouter(service)
+	router := api.SetupRouter(service)
 
 	//tg bot run in different goroutine
-	go service.RunTG()
+	go func() {
+		updChan := tgbot.GetUpdatesChan()
+		err = tgbot.HandleUpdate(updChan)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	srv := &http.Server{
 		Addr:    ":8080",

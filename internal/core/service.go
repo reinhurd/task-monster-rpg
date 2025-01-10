@@ -2,22 +2,15 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rs/zerolog/log"
-	"rpgMonster/internal/clients/gpt"
-	"rpgMonster/internal/clients/telegram"
 	"rpgMonster/internal/model"
-	"rpgMonster/internal/tasks"
-)
-
-const (
-	systemPrompt = "You a personal assistant, helping people to set concrete detailed steps to achieve goals"
 )
 
 type Service struct {
-	gptClient   *gpt.Client
-	taskManager *tasks.Manager
-	tgBot       *telegram.TGBot
+	gptClient GPTClient
+	dbManager DBClient
 }
 
 func (s *Service) DoSomething() string {
@@ -25,26 +18,20 @@ func (s *Service) DoSomething() string {
 }
 
 func (s *Service) CreateTask(ctx context.Context, task *model.Task) (err error) {
-	return s.taskManager.CreateTask(ctx, task)
+	return s.dbManager.CreateTask(ctx, task)
 }
 
 func (s *Service) UpdateTask(ctx context.Context, task *model.Task) (err error) {
-	return s.taskManager.UpdateTask(ctx, task)
-}
-
-func (s *Service) RunTG() {
-	updChan := s.tgBot.GetUpdatesChan()
-	err := s.tgBot.HandleUpdate(updChan)
-	if err != nil {
-		panic(err)
-	}
+	return s.dbManager.UpdateTask(ctx, task)
 }
 
 func (s *Service) CreateTaskFromGPTByRequest(req string) (task *model.Task, err error) {
+	if req == "" {
+		return nil, fmt.Errorf("empty request")
+	}
 	//set goal
 	goal := "learn " + req
-	resp, err := s.gptClient.GetCompletion(systemPrompt, "Write a one single daily task to achieve goal "+goal+
-		", in format: 'daily task: task description: requirements to check' and delimiter is comma")
+	resp, err := s.gptClient.GetCompletion(model.GPT_SYSTEM_PROMPT, fmt.Sprintf(model.GPT_DEFAULT_REQUEST, goal))
 	if err != nil {
 		log.Error().Err(err).Msg("error getting completion")
 		return
@@ -53,17 +40,24 @@ func (s *Service) CreateTaskFromGPTByRequest(req string) (task *model.Task, err 
 	task = &model.Task{}
 	task.Title = goal
 	task.Description = resp.Choices[0].Message.Content
-	err = s.taskManager.CreateTask(context.TODO(), task)
+	err = s.dbManager.CreateTask(context.TODO(), task)
 	if err != nil {
 		return nil, err
 	}
 	return task, nil
 }
 
-func NewService(gptClient *gpt.Client, taskManager *tasks.Manager, tgBot *telegram.TGBot) *Service {
+func (s *Service) CreateNewUser(login, password string) (id string, err error) {
+	return s.dbManager.CreateNewUser(login, password)
+}
+
+func (s *Service) CheckPassword(login, password string) (id string, err error) {
+	return s.dbManager.CheckPassword(login, password)
+}
+
+func NewService(gptClient GPTClient, taskManager DBClient) *Service {
 	return &Service{
-		gptClient:   gptClient,
-		taskManager: taskManager,
-		tgBot:       tgBot,
+		gptClient: gptClient,
+		dbManager: taskManager,
 	}
 }

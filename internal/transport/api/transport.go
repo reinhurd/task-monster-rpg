@@ -1,4 +1,4 @@
-package transport
+package api
 
 import (
 	"context"
@@ -76,7 +76,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 		}
 	})
 
-	//// User logic
+	//todo add User logic
 	r.POST("api/users", func(c *gin.Context) {
 		var user struct {
 			Login    string `json:"login"`
@@ -87,7 +87,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		_, err = core.CreateNewUser(user.Login, user.Password)
+		_, err = svc.CreateNewUser(user.Login, user.Password)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 		} else {
@@ -105,7 +105,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		userId, err := core.CheckPassword(user.Login, user.Password)
+		userId, err := svc.CheckPassword(user.Login, user.Password)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 		} else {

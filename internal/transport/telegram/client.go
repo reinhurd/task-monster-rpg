@@ -1,8 +1,13 @@
 package telegram
 
 import (
+	"fmt"
+	"strings"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog/log"
+	"rpgMonster/internal/core"
+	"rpgMonster/internal/model"
 )
 
 var lastChatID int64
@@ -10,6 +15,7 @@ var lastChatID int64
 type TGBot struct {
 	bot *tgbotapi.BotAPI
 	u   tgbotapi.UpdateConfig
+	svc *core.Service
 }
 
 func (t *TGBot) GetUpdatesChan() tgbotapi.UpdatesChannel {
@@ -36,9 +42,23 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 		if update.Message != nil { // If we got a message
 			log.Info().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text
+			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
 
-			//todo do some logic in switch for parsing commands
+			switch {
+			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
+				splStr := strings.Split(update.Message.Text, " ")
+				if len(splStr) < 2 {
+					resp = "Please specify request"
+				} else {
+					task, err := t.svc.CreateTaskFromGPTByRequest(splStr[1])
+					if err != nil {
+						resp = err.Error()
+					}
+					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK_GPT], task)
+				}
+			case strings.Contains(update.Message.Text, model.HELP):
+				resp = model.Commands[model.HELP]
+			}
 
 			lastChatID = update.Message.Chat.ID
 
@@ -61,7 +81,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 	return nil
 }
 
-func StartBot(tgToken string, isDebug bool) (*TGBot, error) {
+func StartBot(tgToken string, isDebug bool, svc *core.Service) (*TGBot, error) {
 	bot, err := tgbotapi.NewBotAPI(tgToken)
 	if err != nil {
 		log.Fatal().Err(err).Msg("tgbotapi.NewBotAPI doesn't start")
@@ -77,6 +97,7 @@ func StartBot(tgToken string, isDebug bool) (*TGBot, error) {
 	tgbot := &TGBot{
 		bot: bot,
 		u:   u,
+		svc: svc,
 	}
 
 	return tgbot, nil
