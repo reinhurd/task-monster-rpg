@@ -108,6 +108,21 @@ func (mr *MockDBClientMockRecorder) CreateNewUser(login, password any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewUser", reflect.TypeOf((*MockDBClient)(nil).CreateNewUser), login, password)
 }
 
+// CreateNewUserTG mocks base method.
+func (m *MockDBClient) CreateNewUserTG(login, password string, TGID int) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateNewUserTG", login, password, TGID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewUserTG indicates an expected call of CreateNewUserTG.
+func (mr *MockDBClientMockRecorder) CreateNewUserTG(login, password, TGID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewUserTG", reflect.TypeOf((*MockDBClient)(nil).CreateNewUserTG), login, password, TGID)
+}
+
 // CreateTask mocks base method.
 func (m *MockDBClient) CreateTask(ctx context.Context, task *model.Task) error {
 	m.ctrl.T.Helper()
@@ -120,6 +135,21 @@ func (m *MockDBClient) CreateTask(ctx context.Context, task *model.Task) error {
 func (mr *MockDBClientMockRecorder) CreateTask(ctx, task any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockDBClient)(nil).CreateTask), ctx, task)
+}
+
+// GetTask mocks base method.
+func (m *MockDBClient) GetTask(ctx context.Context, bizID string) (*model.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTask", ctx, bizID)
+	ret0, _ := ret[0].(*model.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTask indicates an expected call of GetTask.
+func (mr *MockDBClientMockRecorder) GetTask(ctx, bizID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockDBClient)(nil).GetTask), ctx, bizID)
 }
 
 // UpdateTask mocks base method.

@@ -43,18 +43,40 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 			log.Info().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
+			userTelegramID := update.Message.From.ID
 
 			switch {
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
+				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				if err != nil {
+					resp = err.Error()
+					break
+				}
 				splStr := strings.Split(update.Message.Text, " ")
 				if len(splStr) < 2 {
 					resp = "Please specify request"
 				} else {
-					task, err := t.svc.CreateTaskFromGPTByRequest(splStr[1])
+					task, err := t.svc.CreateTaskFromGPTByRequest(splStr[1], userID)
 					if err != nil {
 						resp = err.Error()
 					}
 					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK_GPT], task)
+				}
+			case strings.Contains(update.Message.Text, model.CONNECT_USER):
+				userID, err := t.svc.ValidateUserTG(int(userTelegramID))
+				if err != nil {
+					resp = err.Error()
+					break
+				}
+				spStr := strings.Split(update.Message.Text, " ")
+				if len(spStr) < 2 {
+					resp = "Please specify user ID"
+				} else {
+					userID, err = t.svc.ConnectUserToTG(spStr[1], int(userTelegramID))
+					if err != nil {
+						resp = err.Error()
+					}
+					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], userID)
 				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]

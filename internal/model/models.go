@@ -33,11 +33,12 @@ type GPTMessage struct {
 }
 
 type User struct {
-	BizID     string `bson:"biz_id"`
-	Login     string `bson:"login"`
-	Password  string `bson:"password"`
-	Salt      string `bson:"salt"`
-	StrikeDay int    `bson:"strike_day"`
+	BizID       string `bson:"biz_id"`
+	Login       string `bson:"login"`
+	Password    string `bson:"password"`
+	Salt        string `bson:"salt"`
+	StreakCount int    `bson:"streak_count"`
+	TelegramID  int    `bson:"telegram_id"` // ID of the user in the Telegram to control authorization
 }
 
 type Task struct {

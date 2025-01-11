@@ -2,17 +2,18 @@
 
 Concept:
 
-1. Each user have an avatar
-2. The user sets a goal - to learn a new language, complete a project, etc.
-3. Goal was autofilled with chatGPT and similar content
-4. The more user achieve in that goal - the more he is stronger against some monsters
-5. Monster fights with users and each other in real time
-6. Each victory - unique info/links/quests for user's goal
+1. It is a TODO-list with gamification elements and ChatGPT integration
+2. Tasks can be linked with each other
+3. Tasks can be view/edited/checked by another users
+4. Tasks can be generated and checked by ChatGPT
+5. User have streak of completed tasks
 
 #### TODO:
-- Add chatgpt client
-- Mechanism for fill users goals after they completed task
-- Storage for users and their tasks
+- Visual interface
+- Telegram bot improvement
+- Deploy
+- Logic to connect users and their tasks
+- Logic to get access to chatGPT
 
 ## Task monster secret.env file
 ```

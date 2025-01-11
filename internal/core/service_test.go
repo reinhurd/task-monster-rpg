@@ -51,7 +51,8 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 	svc := NewService(gptClient, dbClient)
 
 	type args struct {
-		req string
+		req    string
+		userID string
 	}
 	tests := []struct {
 		name     string
@@ -63,14 +64,16 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 		{
 			name: "empty_request",
 			args: args{
-				req: "",
+				req:    "",
+				userID: "",
 			},
 			wantErr: true,
 		},
 		{
 			name: "normal_case",
 			args: args{
-				req: "C#",
+				req:    "C#",
+				userID: "1",
 			},
 			wantErr: false,
 			mockFunc: func(db *MockDBClient, gpt *MockGPTClient) {
@@ -89,6 +92,7 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 			expRes: &model.Task{
 				Title:       "learn C#",
 				Description: "learn C# and test description",
+				Executor:    "1",
 			},
 		},
 	}
@@ -97,7 +101,7 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 			if tt.mockFunc != nil {
 				tt.mockFunc(dbClient, gptClient)
 			}
-			res, err := svc.CreateTaskFromGPTByRequest(tt.args.req)
+			res, err := svc.CreateTaskFromGPTByRequest(tt.args.req, tt.args.userID)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {

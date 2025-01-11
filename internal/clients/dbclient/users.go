@@ -9,11 +9,13 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"rpgMonster/internal/model"
 )
 
 const (
 	LOGIN = "login"
+	TGID  = "telegram_id"
 )
 
 func (m *Manager) CreateNewUser(login string, password string) (id string, err error) {
@@ -46,9 +48,23 @@ func (m *Manager) CreateNewUser(login string, password string) (id string, err e
 	return user.BizID, nil
 }
 
+func (m *Manager) CreateNewUserTG(login, password string, telegramID int) (id string, err error) {
+	userID, err := m.CreateNewUser(login, password)
+	if err != nil {
+		return "", err
+	}
+	//update user with TGID
+	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: telegramID}})
+	if err != nil {
+		return "", err
+	}
+	return userID, nil
+}
+
+// todo maybe set temptoken?
 func (m *Manager) CheckPassword(login string, password string) (id string, err error) {
 	var user model.User
-	err = m.collectionUsers.FindOne(context.TODO(), map[string]string{LOGIN: login}).Decode(&user)
+	err = m.collectionUsers.FindOne(context.TODO(), bson.M{LOGIN: login}).Decode(&user)
 	if err != nil {
 		return "", err
 	}

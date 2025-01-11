@@ -21,11 +21,28 @@ func (s *Service) CreateTask(ctx context.Context, task *model.Task) (err error) 
 	return s.dbManager.CreateTask(ctx, task)
 }
 
+func (s *Service) GetTask(ctx context.Context, bizID string, userID string) (task *model.Task, err error) {
+	//todo check rights of executor or reviewer with user ID
+	task, err = s.dbManager.GetTask(ctx, bizID)
+	if err != nil {
+		return nil, err
+	}
+	if task.Executor != userID || (task.Reviewer != nil && *task.Reviewer != userID) {
+		return nil, fmt.Errorf("no rights to view task")
+	}
+	return task, nil
+}
+
+// todo IMPLEMENT
+func (s *Service) GetListTasksByUserID(ctx context.Context, userID string) (tasks []model.Task, err error) {
+	return nil, nil
+}
+
 func (s *Service) UpdateTask(ctx context.Context, task *model.Task) (err error) {
 	return s.dbManager.UpdateTask(ctx, task)
 }
 
-func (s *Service) CreateTaskFromGPTByRequest(req string) (task *model.Task, err error) {
+func (s *Service) CreateTaskFromGPTByRequest(req string, userID string) (task *model.Task, err error) {
 	if req == "" {
 		return nil, fmt.Errorf("empty request")
 	}
@@ -40,11 +57,26 @@ func (s *Service) CreateTaskFromGPTByRequest(req string) (task *model.Task, err 
 	task = &model.Task{}
 	task.Title = goal
 	task.Description = resp.Choices[0].Message.Content
+	task.Executor = userID
 	err = s.dbManager.CreateTask(context.TODO(), task)
 	if err != nil {
 		return nil, err
 	}
 	return task, nil
+}
+
+func (s *Service) CreateUserFromTG(login, password string, TGID int) (id string, err error) {
+	return s.dbManager.CreateNewUserTG(login, password, TGID)
+}
+
+func (s *Service) ConnectUserToTG(userID string, telegramID int) (id string, err error) {
+	//todo implement
+	return "", nil
+}
+
+func (s *Service) ValidateUserTG(telegramID int) (id string, err error) {
+	//todo implement
+	return "", nil
 }
 
 func (s *Service) CreateNewUser(login, password string) (id string, err error) {
