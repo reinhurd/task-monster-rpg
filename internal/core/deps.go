@@ -18,4 +18,6 @@ type DBClient interface {
 	CreateNewUser(login, password string) (id string, err error)
 	CreateNewUserTG(login, password string, TGID int) (id string, err error)
 	CheckPassword(login, password string) (id string, err error)
+	GetUserByTGID(telegramID int) (id string, err error)
+	UpdateUserTGID(userID string, telegramID int) error
 }

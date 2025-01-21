@@ -69,14 +69,21 @@ func (s *Service) CreateUserFromTG(login, password string, TGID int) (id string,
 	return s.dbManager.CreateNewUserTG(login, password, TGID)
 }
 
-func (s *Service) ConnectUserToTG(userID string, telegramID int) (id string, err error) {
-	//todo implement
-	return "", nil
+func (s *Service) ConnectUserToTG(userID string, telegramID int) (err error) {
+	err = s.dbManager.UpdateUserTGID(userID, telegramID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Service) ValidateUserTG(telegramID int) (id string, err error) {
-	//todo implement
-	return "", nil
+	//find user by telegram ID
+	userID, err := s.dbManager.GetUserByTGID(telegramID)
+	if err != nil {
+		return "", err
+	}
+	return userID, nil
 }
 
 func (s *Service) CreateNewUser(login, password string) (id string, err error) {

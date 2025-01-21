@@ -61,6 +61,20 @@ func (m *Manager) CreateNewUserTG(login, password string, telegramID int) (id st
 	return userID, nil
 }
 
+func (m *Manager) GetUserByTGID(telegramID int) (id string, err error) {
+	var user model.User
+	err = m.collectionUsers.FindOne(context.TODO(), bson.M{TGID: telegramID}).Decode(&user)
+	if err != nil {
+		return "", err
+	}
+	return user.BizID, nil
+}
+
+func (m *Manager) UpdateUserTGID(userID string, telegramID int) error {
+	_, err := m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: telegramID}})
+	return err
+}
+
 // todo maybe set temptoken?
 func (m *Manager) CheckPassword(login string, password string) (id string, err error) {
 	var user model.User

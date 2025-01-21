@@ -63,20 +63,16 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK_GPT], task)
 				}
 			case strings.Contains(update.Message.Text, model.CONNECT_USER):
-				userID, err := t.svc.ValidateUserTG(int(userTelegramID))
-				if err != nil {
-					resp = err.Error()
-					break
-				}
+				//todo think about validation about already exists connection tg to user
 				spStr := strings.Split(update.Message.Text, " ")
 				if len(spStr) < 2 {
 					resp = "Please specify user ID"
 				} else {
-					userID, err = t.svc.ConnectUserToTG(spStr[1], int(userTelegramID))
+					err = t.svc.ConnectUserToTG(spStr[1], int(userTelegramID))
 					if err != nil {
 						resp = err.Error()
 					}
-					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], userID)
+					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], spStr[1])
 				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
