@@ -33,9 +33,8 @@ func (s *Service) GetTask(ctx context.Context, bizID string, userID string) (tas
 	return task, nil
 }
 
-// todo IMPLEMENT
 func (s *Service) GetListTasksByUserID(ctx context.Context, userID string) (tasks []model.Task, err error) {
-	return nil, nil
+	return s.dbManager.GetTaskListByUserID(userID)
 }
 
 func (s *Service) UpdateTask(ctx context.Context, task *model.Task) (err error) {

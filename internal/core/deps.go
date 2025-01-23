@@ -20,4 +20,5 @@ type DBClient interface {
 	CheckPassword(login, password string) (id string, err error)
 	GetUserByTGID(telegramID int) (id string, err error)
 	UpdateUserTGID(userID string, telegramID int) error
+	GetTaskListByUserID(userID string) (tasks []model.Task, err error)
 }

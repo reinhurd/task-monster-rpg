@@ -75,6 +75,18 @@ func (m *Manager) UpdateUserTGID(userID string, telegramID int) error {
 	return err
 }
 
+func (m *Manager) GetTaskListByUserID(userID string) (tasks []model.Task, err error) {
+	cursor, err := m.collectionTasks.Find(context.TODO(), bson.M{EXECUTOR: userID})
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.TODO(), &tasks)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
 // todo maybe set temptoken?
 func (m *Manager) CheckPassword(login string, password string) (id string, err error) {
 	var user model.User
