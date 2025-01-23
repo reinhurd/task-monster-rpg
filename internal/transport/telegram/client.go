@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -73,6 +74,20 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 					}
 					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], spStr[1])
+				}
+			case strings.Contains(update.Message.Text, model.TASK_LIST):
+				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				if err != nil {
+					resp = err.Error()
+					break
+				}
+				tasks, err := t.svc.GetListTasksByUserID(context.Background(), userID)
+				if err != nil {
+					resp = err.Error()
+				} else {
+					for _, task := range tasks {
+						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
+					}
 				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]

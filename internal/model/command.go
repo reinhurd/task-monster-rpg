@@ -4,6 +4,7 @@ const (
 	HELP            = "/help"
 	CREATE_TASK_GPT = "/create_task_gpt"
 	CONNECT_USER    = "/connect_user"
+	TASK_LIST       = "/task_list"
 )
 
 var Commands = map[string]string{
@@ -12,4 +13,5 @@ var Commands = map[string]string{
 		"/set_csv <filename> - set default csv\n",
 	CREATE_TASK_GPT: "Task created: %v",
 	CONNECT_USER:    "User connected: %v",
+	TASK_LIST:       "Task: %v\n",
 }

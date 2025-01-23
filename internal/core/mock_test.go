@@ -152,6 +152,36 @@ func (mr *MockDBClientMockRecorder) GetTask(ctx, bizID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockDBClient)(nil).GetTask), ctx, bizID)
 }
 
+// GetTaskListByUserID mocks base method.
+func (m *MockDBClient) GetTaskListByUserID(userID string) ([]model.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskListByUserID", userID)
+	ret0, _ := ret[0].([]model.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskListByUserID indicates an expected call of GetTaskListByUserID.
+func (mr *MockDBClientMockRecorder) GetTaskListByUserID(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskListByUserID", reflect.TypeOf((*MockDBClient)(nil).GetTaskListByUserID), userID)
+}
+
+// GetUserByTGID mocks base method.
+func (m *MockDBClient) GetUserByTGID(telegramID int) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByTGID", telegramID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByTGID indicates an expected call of GetUserByTGID.
+func (mr *MockDBClientMockRecorder) GetUserByTGID(telegramID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByTGID", reflect.TypeOf((*MockDBClient)(nil).GetUserByTGID), telegramID)
+}
+
 // UpdateTask mocks base method.
 func (m *MockDBClient) UpdateTask(ctx context.Context, task *model.Task) error {
 	m.ctrl.T.Helper()
@@ -164,4 +194,18 @@ func (m *MockDBClient) UpdateTask(ctx context.Context, task *model.Task) error {
 func (mr *MockDBClientMockRecorder) UpdateTask(ctx, task any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockDBClient)(nil).UpdateTask), ctx, task)
+}
+
+// UpdateUserTGID mocks base method.
+func (m *MockDBClient) UpdateUserTGID(userID string, telegramID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserTGID", userID, telegramID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserTGID indicates an expected call of UpdateUserTGID.
+func (mr *MockDBClientMockRecorder) UpdateUserTGID(userID, telegramID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserTGID", reflect.TypeOf((*MockDBClient)(nil).UpdateUserTGID), userID, telegramID)
 }
