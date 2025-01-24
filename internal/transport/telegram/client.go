@@ -89,6 +89,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
 					}
 				}
+				//todo add logic for create and update task
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
 			}

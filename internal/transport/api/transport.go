@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"rpgMonster/internal/core"
@@ -95,10 +96,37 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 		}
 	})
 
-	//todo IMPLEMENT
-	r.PUT("api/tasks/:id", func(c *gin.Context) {
+	r.POST("api/tasks/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		c.String(http.StatusOK, "Task Id: "+id)
+		var task model.Task
+		if err := c.ShouldBindJSON(&task); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		userID, err := auth(c.GetHeader(authHeader), svc)
+		if err != nil || userID == "" {
+			c.String(http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+		err = svc.UpdateTask(context.Background(), &model.Task{
+			BizId:       id,
+			Title:       task.Title,
+			Description: task.Description,
+			Executor:    task.Executor,
+			Reviewer:    task.Reviewer,
+			Completed:   task.Completed,
+			CreatedAt:   task.CreatedAt,
+			UpdatedAt:   time.Now(),
+			Deadline:    task.Deadline,
+			Tags:        task.Tags,
+		})
+		if err != nil {
+			responseText := err.Error()
+			c.String(http.StatusInternalServerError, responseText)
+		} else {
+			responseText := "Updated Task ID:" + id
+			c.String(http.StatusOK, responseText)
+		}
 	})
 
 	r.PUT("api/tasks/:id/status", func(c *gin.Context) {
