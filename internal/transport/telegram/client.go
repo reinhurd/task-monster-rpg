@@ -89,7 +89,47 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
 					}
 				}
-				//todo add logic for create and update task
+			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
+				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				if err != nil {
+					resp = err.Error()
+					break
+				}
+				splStr := strings.Split(update.Message.Text, " ")
+				if len(splStr) < 3 {
+					resp = "Please specify request"
+				} else {
+					var task model.Task
+					task.Title = splStr[1]
+					task.Description = splStr[2]
+					task.Executor = userID
+					err = t.svc.CreateTask(context.Background(), &task)
+					if err != nil {
+						resp = err.Error()
+					}
+					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK], task)
+				}
+			case strings.Contains(update.Message.Text, model.UPDATE_TASK):
+				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				if err != nil {
+					resp = err.Error()
+					break
+				}
+				splStr := strings.Split(update.Message.Text, " ")
+				if len(splStr) < 4 {
+					resp = "Please specify task ID, goal and description"
+				} else {
+					var task model.Task
+					task.BizId = splStr[1]
+					task.Title = splStr[2]
+					task.Description = splStr[3]
+					task.Executor = userID
+					err = t.svc.UpdateTask(context.Background(), &task)
+					if err != nil {
+						resp = err.Error()
+					}
+					resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
+				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
 			}
