@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -107,6 +108,122 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, res)
+				require.Equal(t, tt.expRes, res)
+			}
+		})
+	}
+}
+
+func TestService_CheckPassword(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	type args struct {
+		login    string
+		password string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		mockFunc func(db *MockDBClient)
+		wantErr  bool
+		expRes   string
+	}{
+		{
+			name: "normal_case",
+			args: args{
+				login:    "login",
+				password: "password",
+			},
+			wantErr: false,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CheckPassword("login", "password").Return("1", nil)
+			},
+			expRes: "1",
+		},
+		{
+			name: "error_case",
+			args: args{
+				login:    "login",
+				password: "password",
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CheckPassword("login", "password").Return("", fmt.Errorf("error"))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockFunc != nil {
+				tt.mockFunc(dbClient)
+			}
+			res, err := svc.CheckPassword(tt.args.login, tt.args.password)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.expRes, res)
+			}
+		})
+	}
+}
+
+func TestService_CreateNewUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	type args struct {
+		login    string
+		password string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		mockFunc func(db *MockDBClient)
+		wantErr  bool
+		expRes   string
+	}{
+		{
+			name: "normal_case",
+			args: args{
+				login:    "login",
+				password: "password",
+			},
+			wantErr: false,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CreateNewUser("login", "password").Return("1", nil)
+			},
+			expRes: "1",
+		},
+		{
+			name: "error_case",
+			args: args{
+				login:    "login",
+				password: "password",
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CreateNewUser("login", "password").Return("", fmt.Errorf("error"))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockFunc != nil {
+				tt.mockFunc(dbClient)
+			}
+			res, err := svc.CreateNewUser(tt.args.login, tt.args.password)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 				require.Equal(t, tt.expRes, res)
 			}
 		})
