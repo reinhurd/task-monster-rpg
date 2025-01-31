@@ -29,6 +29,11 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 		c.String(http.StatusOK, svc.DoSomething())
 	})
 
+	r.GET("/", func(c *gin.Context) {
+		//TODO default template for default page
+		c.String(http.StatusOK, svc.GetTemplate())
+	})
+
 	// Get active tasks for current user
 	r.GET("api/tasks", func(c *gin.Context) {
 		userID, err := auth(c.GetHeader(authHeader), svc)
