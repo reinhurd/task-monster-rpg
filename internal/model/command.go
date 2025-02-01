@@ -13,9 +13,9 @@ var Commands = map[string]string{
 	HELP: "/create_task_gpt <request> - create a task by your request to learn\n" +
 		"/connect_user <user_ID> - connect user to telegram\n" +
 		"/set_csv <filename> - set default csv\n" +
-		"/task_list - get list of tasks" +
-		"/create_non_gpt_task <task_goal> <task_description> - create a task without GPT" +
-		"/update_task <task_id> <task_goal> <task_description> - update a task", //todo add additional field for task
+		"/task_list - get list of tasks\n" +
+		"/create_non_gpt_task <task_goal> <task_description> - create a task without GPT\n" +
+		"/update_task <task_id> <task_goal> <task_description> - update a task\n", //todo add additional field for task
 	CREATE_TASK_GPT: "Task created: %v",
 	CONNECT_USER:    "User connected: %v",
 	TASK_LIST:       "Task: %v\n",

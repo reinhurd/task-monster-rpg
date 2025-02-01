@@ -37,6 +37,10 @@ func main() {
 
 	gptClient := gpt.New(resty.New())
 	taskManager := dbclient.NewManager()
+	err := taskManager.Ping()
+	if err != nil {
+		panic(err)
+	}
 	service := core.NewService(gptClient, taskManager)
 
 	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true, service)

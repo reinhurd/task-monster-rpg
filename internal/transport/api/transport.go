@@ -31,7 +31,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 
 	r.GET("/", func(c *gin.Context) {
 		//TODO default template for default page
-		c.String(http.StatusOK, svc.GetTemplate())
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(svc.GetTemplate()))
 	})
 
 	// Get active tasks for current user
@@ -82,7 +82,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 	})
 
 	// Create a new task manually
-	r.POST("api/tasks", func(c *gin.Context) {
+	r.POST("api/tasks/create", func(c *gin.Context) {
 		var task model.Task
 
 		if err := c.ShouldBindJSON(&task); err != nil {
