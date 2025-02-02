@@ -14,6 +14,7 @@ import (
 	"rpgMonster/internal/clients/dbclient"
 	"rpgMonster/internal/clients/gpt"
 	"rpgMonster/internal/core"
+	"rpgMonster/internal/model"
 	"rpgMonster/internal/transport/api"
 	"rpgMonster/internal/transport/telegram"
 
@@ -41,7 +42,27 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//todo add migration with default data
+	//TODO add check to only one user and one task!
+	userID, err := taskManager.CreateNewUser("test", "test")
+	if err != nil {
+		panic(err)
+	}
+	testTask := &model.Task{
+		Title:       "Test Title",
+		Description: "Test description",
+		Executor:    userID,
+		Reviewer:    &userID,
+		Completed:   false,
+		Deadline:    time.Now().Add(time.Hour * 24),
+		Tags:        []string{"test", "task"},
+	}
+
 	service := core.NewService(gptClient, taskManager)
+	err = service.CreateTask(context.Background(), testTask)
+	if err != nil {
+		panic(err)
+	}
 
 	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true, service)
 	if err != nil {

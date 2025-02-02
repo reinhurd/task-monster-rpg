@@ -177,10 +177,13 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			return
 		}
 		userId, err := svc.CheckPassword(user.Login, user.Password)
+		fmt.Println(userId)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 		} else {
-			c.String(http.StatusOK, userId)
+			//TODO return token, not password
+			token := user.Login + ":" + user.Password
+			c.JSON(http.StatusOK, gin.H{"token": token, "success": true})
 		}
 	})
 

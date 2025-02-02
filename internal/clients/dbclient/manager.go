@@ -36,6 +36,7 @@ func NewManager() *Manager {
 	}
 
 	db := client.Database(model.DB_NAME)
+	//todo add migration with default data
 	err = db.CreateCollection(context.Background(), model.TASKS_COLLECTION)
 	if err != nil {
 		panic(err)

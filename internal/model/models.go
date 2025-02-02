@@ -51,6 +51,6 @@ type Task struct {
 	Completed   bool               `bson:"completed"`
 	CreatedAt   time.Time          `bson:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at"`
-	Deadline    primitive.DateTime `bson:"deadline"`
+	Deadline    time.Time          `bson:"deadline"`
 	Tags        []string           `bson:"tags"`
 }

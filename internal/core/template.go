@@ -1,5 +1,6 @@
 package core
 
+// TODO rework template
 func (s *Service) GetTemplate() string {
 	return `<!DOCTYPE html>
 <html>
@@ -171,7 +172,7 @@ func (s *Service) GetTemplate() string {
     // Load tasks from /api/tasks and render them in the tasksContainer
     function loadTasks() {
       fetch('/api/tasks', {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        headers: { 'Authorization': '' + localStorage.getItem('token') }
       })
       .then(response => response.json())
       .then(tasks => {
@@ -184,7 +185,7 @@ func (s *Service) GetTemplate() string {
           // Task header with title and a toggle button for details
           var headerDiv = document.createElement('div');
           headerDiv.className = 'task-header';
-          headerDiv.innerHTML = '<strong>' + task.title + '</strong>';
+          headerDiv.innerHTML = '<strong>' + task.Title + '</strong>';
           var toggleButton = document.createElement('button');
           toggleButton.className = 'button';
           toggleButton.textContent = 'Details';
@@ -202,34 +203,32 @@ func (s *Service) GetTemplate() string {
           var detailsDiv = document.createElement('div');
           detailsDiv.className = 'task-details';
           detailsDiv.innerHTML =
-            '<p><strong>Description:</strong> ' + task.description + '</p>' +
-            '<p><strong>Executor:</strong> ' + task.executor + '</p>' +
-            '<p><strong>Reviewer:</strong> ' + (task.reviewer || '') + '</p>' +
-            '<p><strong>Completed:</strong> ' + task.completed + '</p>' +
-            '<p><strong>Created At:</strong> ' + new Date(task.created_at).toLocaleString() + '</p>' +
-            '<p><strong>Updated At:</strong> ' + new Date(task.updated_at).toLocaleString() + '</p>' +
-            '<p><strong>Deadline:</strong> ' + new Date(task.deadline.$date).toLocaleString() + '</p>' +
-            '<p><strong>Tags:</strong> ' + task.tags.join(', ') + '</p>';
+            '<p><strong>Description:</strong> ' + task.Description + '</p>' +
+            '<p><strong>Executor:</strong> ' + task.Executor + '</p>' +
+            '<p><strong>Reviewer:</strong> ' + (task.Reviewer || '') + '</p>' +
+            '<p><strong>Completed:</strong> ' + task.Completed + '</p>' +
+            '<p><strong>Created At:</strong> ' + new Date(task.Created_at).toLocaleString() + '</p>' +
+            '<p><strong>Updated At:</strong> ' + new Date(task.Updated_at).toLocaleString() + '</p>';
 
           // Update form for the task – sends PUT request to /api/tasks/:id/status
           var updateForm = document.createElement('form');
           updateForm.innerHTML = '<h4>Update Task</h4>' +
-            '<label>Title: <input type="text" name="title" value="' + task.title + '"></label><br>' +
-            '<label>Description: <textarea name="description">' + task.description + '</textarea></label><br>' +
-            '<label>Executor: <input type="text" name="executor" value="' + task.executor + '"></label><br>' +
-            '<label>Reviewer: <input type="text" name="reviewer" value="' + (task.reviewer || '') + '"></label><br>' +
-            '<label>Completed: <input type="checkbox" name="completed" ' + (task.completed ? 'checked' : '') + '></label><br>' +
+            '<label>Title: <input type="text" name="title" value="' + task.Title + '"></label><br>' +
+            '<label>Description: <textarea name="description">' + task.Description + '</textarea></label><br>' +
+            '<label>Executor: <input type="text" name="executor" value="' + task.Executor + '"></label><br>' +
+            '<label>Reviewer: <input type="text" name="reviewer" value="' + (task.Reviewer || '') + '"></label><br>' +
+            '<label>Completed: <input type="checkbox" name="completed" ' + (task.Completed ? 'checked' : '') + '></label><br>' +
             '<button type="submit" class="button">Update Task</button>';
 
           updateForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var formData = new FormData(updateForm);
             var updatedTask = {
-              title: formData.get('title'),
-              description: formData.get('description'),
-              executor: formData.get('executor'),
-              reviewer: formData.get('reviewer'),
-              completed: formData.get('completed') === 'on'
+              title: formData.get('Title'),
+              description: formData.get('Description'),
+              executor: formData.get('Executor'),
+              reviewer: formData.get('Reviewer'),
+              completed: formData.get('Completed') === 'on'
             };
             fetch('/api/tasks/' + task._id + '/status', {
               method: 'PUT',
