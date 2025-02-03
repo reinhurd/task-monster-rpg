@@ -11,6 +11,7 @@ import (
 )
 
 type Manager struct {
+	db              *mongo.Database
 	collectionTasks *mongo.Collection
 	collectionUsers *mongo.Collection
 }
@@ -36,16 +37,9 @@ func NewManager() *Manager {
 	}
 
 	db := client.Database(model.DB_NAME)
-	//todo add migration with default data
-	err = db.CreateCollection(context.Background(), model.TASKS_COLLECTION)
-	if err != nil {
-		panic(err)
-	}
-	err = db.CreateCollection(context.Background(), model.USERS_COLLECTION)
-	if err != nil {
-		panic(err)
-	}
+
 	return &Manager{
+		db:              db,
 		collectionTasks: db.Collection(model.TASKS_COLLECTION),
 		collectionUsers: db.Collection(model.USERS_COLLECTION),
 	}

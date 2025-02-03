@@ -24,11 +24,6 @@ type userCreateRequest struct {
 func SetupRouter(svc *core.Service) *gin.Engine {
 	r := gin.Default()
 
-	//// Just ping
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, svc.DoSomething())
-	})
-
 	r.GET("/", func(c *gin.Context) {
 		//TODO default template for default page
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(svc.GetTemplate()))
