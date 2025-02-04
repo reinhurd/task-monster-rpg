@@ -48,7 +48,7 @@ func (m *Manager) CreateNewUser(login string, password string) (id string, err e
 	return user.BizID, nil
 }
 
-func (m *Manager) CreateNewUserTG(login, password string, telegramID int) (id string, err error) {
+func (m *Manager) CreateNewUserTG(login, password string, telegramID int64) (id string, err error) {
 	userID, err := m.CreateNewUser(login, password)
 	if err != nil {
 		return "", err
@@ -61,7 +61,7 @@ func (m *Manager) CreateNewUserTG(login, password string, telegramID int) (id st
 	return userID, nil
 }
 
-func (m *Manager) GetUserByTGID(telegramID int) (id string, err error) {
+func (m *Manager) GetUserByTGID(telegramID int64) (id string, err error) {
 	var user model.User
 	err = m.collectionUsers.FindOne(context.TODO(), bson.M{TGID: telegramID}).Decode(&user)
 	if err != nil {
@@ -70,7 +70,7 @@ func (m *Manager) GetUserByTGID(telegramID int) (id string, err error) {
 	return user.BizID, nil
 }
 
-func (m *Manager) UpdateUserTGID(userID string, telegramID int) error {
+func (m *Manager) UpdateUserTGID(userID string, telegramID int64) error {
 	_, err := m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: telegramID}})
 	return err
 }

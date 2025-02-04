@@ -109,7 +109,7 @@ func (mr *MockDBClientMockRecorder) CreateNewUser(login, password any) *gomock.C
 }
 
 // CreateNewUserTG mocks base method.
-func (m *MockDBClient) CreateNewUserTG(login, password string, TGID int) (string, error) {
+func (m *MockDBClient) CreateNewUserTG(login, password string, TGID int64) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateNewUserTG", login, password, TGID)
 	ret0, _ := ret[0].(string)
@@ -168,7 +168,7 @@ func (mr *MockDBClientMockRecorder) GetTaskListByUserID(userID any) *gomock.Call
 }
 
 // GetUserByTGID mocks base method.
-func (m *MockDBClient) GetUserByTGID(telegramID int) (string, error) {
+func (m *MockDBClient) GetUserByTGID(telegramID int64) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByTGID", telegramID)
 	ret0, _ := ret[0].(string)
@@ -197,7 +197,7 @@ func (mr *MockDBClientMockRecorder) UpdateTask(ctx, task any) *gomock.Call {
 }
 
 // UpdateUserTGID mocks base method.
-func (m *MockDBClient) UpdateUserTGID(userID string, telegramID int) error {
+func (m *MockDBClient) UpdateUserTGID(userID string, telegramID int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUserTGID", userID, telegramID)
 	ret0, _ := ret[0].(error)

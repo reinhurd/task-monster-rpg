@@ -48,7 +48,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 
 			switch {
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
-				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				userID, err := t.svc.ValidateUserTG(userTelegramID)
 				if err != nil {
 					resp = err.Error()
 					break
@@ -69,14 +69,14 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				if len(spStr) < 2 {
 					resp = "Please specify user ID"
 				} else {
-					err = t.svc.ConnectUserToTG(spStr[1], int(userTelegramID))
+					err = t.svc.ConnectUserToTG(spStr[1], userTelegramID)
 					if err != nil {
 						resp = err.Error()
 					}
 					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], spStr[1])
 				}
 			case strings.Contains(update.Message.Text, model.TASK_LIST):
-				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				userID, err := t.svc.ValidateUserTG(userTelegramID)
 				if err != nil {
 					resp = err.Error()
 					break
@@ -90,7 +90,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 				}
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
-				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				userID, err := t.svc.ValidateUserTG(userTelegramID)
 				if err != nil {
 					resp = err.Error()
 					break
@@ -110,7 +110,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK], task)
 				}
 			case strings.Contains(update.Message.Text, model.UPDATE_TASK):
-				userID, err := t.svc.ValidateUserTG(int(userTelegramID)) //todo think about int and int64 in tgID
+				userID, err := t.svc.ValidateUserTG(userTelegramID)
 				if err != nil {
 					resp = err.Error()
 					break

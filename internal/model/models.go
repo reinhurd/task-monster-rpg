@@ -38,7 +38,7 @@ type User struct {
 	Password    string `bson:"password"`
 	Salt        string `bson:"salt"`
 	StreakCount int    `bson:"streak_count"`
-	TelegramID  int    `bson:"telegram_id"` // ID of the user in the Telegram to control authorization
+	TelegramID  int64  `bson:"telegram_id"` // ID of the user in the Telegram to control authorization
 }
 
 type Task struct {
