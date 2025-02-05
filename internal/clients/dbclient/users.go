@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,7 +55,8 @@ func (m *Manager) CreateNewUserTG(login, password string, telegramID int64) (id 
 		return "", err
 	}
 	//update user with TGID
-	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: telegramID}})
+	convTGID := strconv.FormatInt(telegramID, 10)
+	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: convTGID}})
 	if err != nil {
 		return "", err
 	}
