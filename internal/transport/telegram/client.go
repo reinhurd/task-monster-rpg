@@ -130,6 +130,17 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
 				}
+			case strings.Contains(update.Message.Text, model.CREATE_USER):
+				spStr := strings.Split(update.Message.Text, " ")
+				if len(spStr) < 3 {
+					resp = "Please specify login and password"
+				} else {
+					userID, err := t.svc.CreateUserFromTG(spStr[1], spStr[2], userTelegramID)
+					if err != nil {
+						resp = err.Error()
+					}
+					resp = fmt.Sprintf(model.Commands[model.CREATE_USER], userID)
+				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
 			}
