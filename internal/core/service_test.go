@@ -538,3 +538,151 @@ func TestService_CreateUserFromTG(t *testing.T) {
 		})
 	}
 }
+
+func TestService_CreateTask(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	type args struct {
+		ctx  context.Context
+		task *model.Task
+	}
+	tests := []struct {
+		name     string
+		args     args
+		mockFunc func(db *MockDBClient)
+		wantErr  bool
+	}{
+		{
+			name: "normal_case",
+			args: args{
+				ctx: context.Background(),
+				task: &model.Task{
+					BizId: "1",
+				},
+			},
+			wantErr: false,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CreateTask(gomock.Any(), &model.Task{
+					BizId: "1",
+				}).Return(nil)
+			},
+		},
+		{
+			name: "error_case",
+			args: args{
+				ctx: context.Background(),
+				task: &model.Task{
+					BizId: "1",
+				},
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().CreateTask(gomock.Any(), &model.Task{
+					BizId: "1",
+				}).Return(fmt.Errorf("error"))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockFunc != nil {
+				tt.mockFunc(dbClient)
+			}
+			err := svc.CreateTask(tt.args.ctx, tt.args.task)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestService_GetListTasksByUserID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	type args struct {
+		userID string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		mockFunc func(db *MockDBClient)
+		wantErr  bool
+		expRes   []model.Task
+	}{
+		{
+			name: "normal_case",
+			args: args{
+				userID: "1",
+			},
+			wantErr: false,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetTaskListByUserID("1").Return([]model.Task{
+					{
+						BizId: "1",
+					},
+				}, nil)
+			},
+			expRes: []model.Task{
+				{
+					BizId: "1",
+				},
+			},
+		},
+		{
+			name: "error_case",
+			args: args{
+				userID: "1",
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetTaskListByUserID("1").Return(nil, fmt.Errorf("error"))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockFunc != nil {
+				tt.mockFunc(dbClient)
+			}
+			res, err := svc.GetListTasksByUserID(context.Background(), tt.args.userID)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.expRes, res)
+			}
+		})
+	}
+}
+
+func TestService_GetTemplate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "normal_case",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := svc.GetTemplate()
+			require.NotEmpty(t, res)
+		})
+	}
+}
