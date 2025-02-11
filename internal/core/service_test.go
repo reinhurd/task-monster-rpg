@@ -72,6 +72,19 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "error_case",
+			args: args{
+				req:    "C#",
+				userID: "1",
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient, gpt *MockGPTClient) {
+				req := "Write a one single daily task to achieve goal learn C#, in format: 'daily task: task description: requirements to check' and delimiter is comma"
+				gpt.EXPECT().GetCompletion(model.GPT_SYSTEM_PROMPT, req).Return(model.GPTAnswer{}, fmt.Errorf("error"))
+			},
+			expRes: nil,
+		},
+		{
 			name: "normal_case",
 			args: args{
 				req:    "C#",
@@ -106,6 +119,7 @@ func TestService_CreateTaskFromGPTByRequest(t *testing.T) {
 			res, err := svc.CreateTaskFromGPTByRequest(tt.args.req, tt.args.userID)
 			if tt.wantErr {
 				require.Error(t, err)
+				require.Equal(t, tt.expRes, res)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, res)
