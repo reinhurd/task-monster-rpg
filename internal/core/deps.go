@@ -17,7 +17,8 @@ type DBClient interface {
 	UpdateTask(ctx context.Context, task *model.Task) (err error)
 	CreateNewUser(login, password string) (id string, err error)
 	CreateNewUserTG(login, password string, telegramID int64) (id string, err error)
-	CheckPassword(login, password string) (id string, err error)
+	CheckPassword(login, password string) (id string, tempToken string, err error)
+	GetUserByTempToken(tempToken string) (id string, err error)
 	GetUserByTGID(telegramID int64) (id string, err error)
 	UpdateUserTGID(userID string, telegramID int64) error
 	GetTaskListByUserID(userID string) (tasks []model.Task, err error)

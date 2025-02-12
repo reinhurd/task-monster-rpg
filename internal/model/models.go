@@ -39,6 +39,7 @@ type User struct {
 	Salt        string `bson:"salt"`
 	StreakCount int    `bson:"streak_count"`
 	TelegramID  int64  `bson:"telegram_id"` // ID of the user in the Telegram to control authorization
+	TempToken   string `bson:"temp_token"`  // Temporary token for authorization
 }
 
 type Task struct {

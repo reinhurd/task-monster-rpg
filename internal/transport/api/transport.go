@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +12,8 @@ import (
 )
 
 const (
-	authHeader = "Authorization"
+	authHeader      = "Authorization"
+	tempTokenCookie = "token"
 )
 
 type userCreateRequest struct {
@@ -31,7 +31,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 
 	// Get active tasks for current user
 	r.GET("api/tasks", func(c *gin.Context) {
-		userID, err := auth(c.GetHeader(authHeader), svc)
+		userID, err := auth(svc, c)
 		if err != nil || userID == "" {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			return
@@ -47,7 +47,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 	// Get task by Id. Need to check rights
 	r.GET("api/tasks/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		userID, err := auth(c.GetHeader(authHeader), svc)
+		userID, err := auth(svc, c)
 		if err != nil || userID == "" {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			return
@@ -62,7 +62,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 
 	// Create a new task from GPT
 	r.GET("api/tasks/create/gpt", func(c *gin.Context) {
-		userID, err := auth(c.GetHeader(authHeader), svc)
+		userID, err := auth(svc, c)
 		if err != nil || userID == "" {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			return
@@ -84,7 +84,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		task.Executor, _ = auth(c.GetHeader(authHeader), svc)
+		task.Executor, _ = auth(svc, c)
 
 		err := svc.CreateTask(context.Background(), &task)
 		if err != nil {
@@ -103,7 +103,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		userID, err := auth(c.GetHeader(authHeader), svc)
+		userID, err := auth(svc, c)
 		if err != nil || userID == "" {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			return
@@ -131,7 +131,7 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 
 	r.PUT("api/tasks/:id/status", func(c *gin.Context) {
 		id := c.Param("id")
-		userID, err := auth(c.GetHeader(authHeader), svc)
+		userID, err := auth(svc, c)
 		if err != nil || userID == "" {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			return
@@ -171,45 +171,30 @@ func SetupRouter(svc *core.Service) *gin.Engine {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		userId, err := svc.CheckPassword(user.Login, user.Password)
-		fmt.Println(userId)
-		if err != nil {
+		userId, token, err := svc.CheckPassword(user.Login, user.Password)
+		if err != nil || userId == "" {
 			c.String(http.StatusInternalServerError, err.Error())
 		} else {
-			//TODO return token, not password
-			token := user.Login + ":" + user.Password
-			c.JSON(http.StatusOK, gin.H{"token": token, "success": true})
+			c.JSON(http.StatusOK, gin.H{tempTokenCookie: token, "success": true})
+			//set token to cookie
+			c.SetCookie(tempTokenCookie, token, 3600000, "/", "localhost", false, true)
 		}
 	})
 
 	return r
 }
 
-func auth(header string, svc *core.Service) (userID string, err error) {
-	if header == "" {
-		return "", fmt.Errorf("empty header")
-	}
-	log, pass, err := ParseAuthHeader(header)
+func auth(svc *core.Service, c *gin.Context) (userID string, err error) {
+	token, err := c.Cookie(tempTokenCookie)
 	if err != nil {
-		return "", fmt.Errorf("invalid header")
+		return "", fmt.Errorf("no token")
 	}
-	userID, err = svc.CheckPassword(log, pass)
+	if token == "" {
+		return "", fmt.Errorf("empty cookie")
+	}
+	userID, err = svc.GetUserByTempToken(token)
 	if err != nil {
 		return "", fmt.Errorf("invalid token")
 	}
 	return userID, nil
-}
-
-// extracts the user login and password from header string
-// The header Authorization should contain "<user-id>:<password>".
-func ParseAuthHeader(header string) (login, password string, err error) {
-	parts := strings.Split(header, ":")
-	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
-		err = fmt.Errorf("invalid Authorization header format")
-		return
-	}
-
-	login = parts[0]
-	password = parts[1]
-	return
 }

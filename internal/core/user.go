@@ -25,6 +25,10 @@ func (s *Service) CreateNewUser(login, password string) (id string, err error) {
 	return s.dbManager.CreateNewUser(login, password)
 }
 
-func (s *Service) CheckPassword(login, password string) (id string, err error) {
+func (s *Service) CheckPassword(login, password string) (id string, token string, err error) {
 	return s.dbManager.CheckPassword(login, password)
+}
+
+func (s *Service) GetUserByTempToken(tempToken string) (id string, err error) {
+	return s.dbManager.GetUserByTempToken(tempToken)
 }

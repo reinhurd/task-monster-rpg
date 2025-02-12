@@ -79,12 +79,13 @@ func (m *MockDBClient) EXPECT() *MockDBClientMockRecorder {
 }
 
 // CheckPassword mocks base method.
-func (m *MockDBClient) CheckPassword(login, password string) (string, error) {
+func (m *MockDBClient) CheckPassword(login, password string) (string, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckPassword", login, password)
 	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // CheckPassword indicates an expected call of CheckPassword.
@@ -109,18 +110,18 @@ func (mr *MockDBClientMockRecorder) CreateNewUser(login, password any) *gomock.C
 }
 
 // CreateNewUserTG mocks base method.
-func (m *MockDBClient) CreateNewUserTG(login, password string, TGID int64) (string, error) {
+func (m *MockDBClient) CreateNewUserTG(login, password string, telegramID int64) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateNewUserTG", login, password, TGID)
+	ret := m.ctrl.Call(m, "CreateNewUserTG", login, password, telegramID)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateNewUserTG indicates an expected call of CreateNewUserTG.
-func (mr *MockDBClientMockRecorder) CreateNewUserTG(login, password, TGID any) *gomock.Call {
+func (mr *MockDBClientMockRecorder) CreateNewUserTG(login, password, telegramID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewUserTG", reflect.TypeOf((*MockDBClient)(nil).CreateNewUserTG), login, password, TGID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewUserTG", reflect.TypeOf((*MockDBClient)(nil).CreateNewUserTG), login, password, telegramID)
 }
 
 // CreateTask mocks base method.
@@ -180,6 +181,21 @@ func (m *MockDBClient) GetUserByTGID(telegramID int64) (string, error) {
 func (mr *MockDBClientMockRecorder) GetUserByTGID(telegramID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByTGID", reflect.TypeOf((*MockDBClient)(nil).GetUserByTGID), telegramID)
+}
+
+// GetUserByTempToken mocks base method.
+func (m *MockDBClient) GetUserByTempToken(tempToken string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByTempToken", tempToken)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByTempToken indicates an expected call of GetUserByTempToken.
+func (mr *MockDBClientMockRecorder) GetUserByTempToken(tempToken any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByTempToken", reflect.TypeOf((*MockDBClient)(nil).GetUserByTempToken), tempToken)
 }
 
 // UpdateTask mocks base method.

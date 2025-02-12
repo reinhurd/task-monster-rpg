@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	LOGIN = "login"
-	TGID  = "telegram_id"
+	LOGIN      = "login"
+	TGID       = "telegram_id"
+	TEMP_TOKEN = "temp_token"
 )
 
 func (m *Manager) CreateNewUser(login string, password string) (id string, err error) {
@@ -90,25 +91,44 @@ func (m *Manager) GetTaskListByUserID(userID string) (tasks []model.Task, err er
 }
 
 // todo maybe set temptoken?
-func (m *Manager) CheckPassword(login string, password string) (id string, err error) {
+func (m *Manager) CheckPassword(login string, password string) (id string, tempToken string, err error) {
 	var user model.User
 	err = m.collectionUsers.FindOne(context.TODO(), bson.M{LOGIN: login}).Decode(&user)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	hash := sha256.New()
 	salt, err := hex.DecodeString(user.Salt)
 	if err != nil {
 		log.Fatal(err)
-		return "", err
+		return "", "", err
 	}
 
 	hash.Write(salt)
 	hash.Write([]byte(password))
 	if user.Password != hex.EncodeToString(hash.Sum(nil)) {
-		return "", fmt.Errorf("invalid password")
+		return "", "", fmt.Errorf("invalid password")
+	}
+	tempToken = getTempToken()
+	//set temp token to user
+	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{LOGIN: login}, bson.M{"$set": bson.M{TEMP_TOKEN: tempToken}})
+	if err != nil {
+		return "", "", err
 	}
 
+	return user.BizID, tempToken, nil
+}
+
+func (m *Manager) GetUserByTempToken(tempToken string) (id string, err error) {
+	var user model.User
+	err = m.collectionUsers.FindOne(context.TODO(), bson.M{TEMP_TOKEN: tempToken}).Decode(&user)
+	if err != nil {
+		return "", err
+	}
 	return user.BizID, nil
+}
+
+func getTempToken() string {
+	return uuid.New().String()
 }

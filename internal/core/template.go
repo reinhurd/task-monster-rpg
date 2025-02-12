@@ -1,6 +1,6 @@
 package core
 
-// TODO rework template
+// TODO rework template - add work with token from cookie, not header
 func (s *Service) GetTemplate() string {
 	return `<!DOCTYPE html>
 <html>

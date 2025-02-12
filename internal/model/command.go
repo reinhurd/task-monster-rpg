@@ -12,7 +12,7 @@ const (
 
 var Commands = map[string]string{
 	HELP: "/create_task_gpt <request> - create a task by your request to learn\n" +
-		"/connect_user <user_ID> - connect user to telegram\n" +
+		"/connect_user <login> <password> - connect user to telegram\n" +
 		"/set_csv <filename> - set default csv\n" +
 		"/task_list - get list of tasks\n" +
 		"/create_non_gpt_task <task_goal> <task_description> - create a task without GPT\n" +

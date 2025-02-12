@@ -155,7 +155,7 @@ func TestService_CheckPassword(t *testing.T) {
 			},
 			wantErr: false,
 			mockFunc: func(db *MockDBClient) {
-				db.EXPECT().CheckPassword("login", "password").Return("1", nil)
+				db.EXPECT().CheckPassword("login", "password").Return("1", "123", nil)
 			},
 			expRes: "1",
 		},
@@ -167,7 +167,7 @@ func TestService_CheckPassword(t *testing.T) {
 			},
 			wantErr: true,
 			mockFunc: func(db *MockDBClient) {
-				db.EXPECT().CheckPassword("login", "password").Return("", fmt.Errorf("error"))
+				db.EXPECT().CheckPassword("login", "password").Return("", "", fmt.Errorf("error"))
 			},
 		},
 	}
@@ -176,12 +176,13 @@ func TestService_CheckPassword(t *testing.T) {
 			if tt.mockFunc != nil {
 				tt.mockFunc(dbClient)
 			}
-			res, err := svc.CheckPassword(tt.args.login, tt.args.password)
+			res, token, err := svc.CheckPassword(tt.args.login, tt.args.password)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tt.expRes, res)
+				require.NotEmpty(t, token)
 			}
 		})
 	}
@@ -697,6 +698,61 @@ func TestService_GetTemplate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			res := svc.GetTemplate()
 			require.NotEmpty(t, res)
+		})
+	}
+}
+
+func TestService_GetUserByTempToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	dbClient := NewMockDBClient(ctrl)
+	gptClient := NewMockGPTClient(ctrl)
+	svc := NewService(gptClient, dbClient)
+
+	type args struct {
+		tempToken string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		mockFunc func(db *MockDBClient)
+		wantErr  bool
+		expRes   string
+	}{
+		{
+			name: "normal_case",
+			args: args{
+				tempToken: "123",
+			},
+			wantErr: false,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetUserByTempToken("123").Return("1", nil)
+			},
+			expRes: "1",
+		},
+		{
+			name: "error_case",
+			args: args{
+				tempToken: "123",
+			},
+			wantErr: true,
+			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetUserByTempToken("123").Return("", fmt.Errorf("error"))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockFunc != nil {
+				tt.mockFunc(dbClient)
+			}
+			res, err := svc.GetUserByTempToken(tt.args.tempToken)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.expRes, res)
+			}
 		})
 	}
 }
