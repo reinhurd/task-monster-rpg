@@ -90,7 +90,6 @@ func (m *Manager) GetTaskListByUserID(userID string) (tasks []model.Task, err er
 	return tasks, nil
 }
 
-// todo maybe set temptoken?
 func (m *Manager) CheckPassword(login string, password string) (id string, tempToken string, err error) {
 	var user model.User
 	err = m.collectionUsers.FindOne(context.TODO(), bson.M{LOGIN: login}).Decode(&user)

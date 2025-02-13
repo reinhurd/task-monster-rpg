@@ -36,12 +36,28 @@ func (t *TGBot) SendToLastChat(resp string) (tgbotapi.Message, error) {
 }
 
 func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
-	var err error
-
 	for update := range updates {
 		var resp string
 		if update.Message != nil { // If we got a message
 			log.Info().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+			//check if user exists and show his current tasks
+			userID, err := t.svc.ValidateUserTG(update.Message.From.ID)
+			if userID == "" {
+				//message that user need to register
+				resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+			} else if err != nil {
+				resp = err.Error()
+			} else {
+				tasks, err := t.svc.GetListTasksByUserID(context.Background(), userID)
+				if err != nil {
+					resp = err.Error()
+				} else {
+					for _, task := range tasks {
+						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
+					}
+				}
+			}
 
 			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
 			userTelegramID := update.Message.From.ID
