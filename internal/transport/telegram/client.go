@@ -41,8 +41,10 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 		if update.Message != nil { // If we got a message
 			log.Info().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
+			userTelegramID := update.Message.From.ID
+
 			//check if user exists and show his current tasks
-			userID, err := t.svc.ValidateUserTG(update.Message.From.ID)
+			userID, err := t.svc.ValidateUserTG(userTelegramID)
 			if userID == "" {
 				//message that user need to register
 				resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
@@ -54,13 +56,10 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = err.Error()
 				} else {
 					for _, task := range tasks {
-						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
+						resp = fmt.Sprintf(model.Commands[model.TASK_LIST], task)
 					}
 				}
 			}
-
-			resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
-			userTelegramID := update.Message.From.ID
 
 			switch {
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
@@ -76,8 +75,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					task, err := t.svc.CreateTaskFromGPTByRequest(splStr[1], userID)
 					if err != nil {
 						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.CREATE_TASK_GPT], task)
 					}
-					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK_GPT], task)
 				}
 			case strings.Contains(update.Message.Text, model.CONNECT_USER):
 				spStr := strings.Split(update.Message.Text, " ")
@@ -91,8 +91,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					err = t.svc.ConnectUserToTG(userID, userTelegramID)
 					if err != nil {
 						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], userID)
 					}
-					resp = fmt.Sprintf(model.Commands[model.CONNECT_USER], userID)
 				}
 			case strings.Contains(update.Message.Text, model.TASK_LIST):
 				userID, err := t.svc.ValidateUserTG(userTelegramID)
@@ -125,8 +126,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					err = t.svc.CreateTask(context.Background(), &task)
 					if err != nil {
 						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.CREATE_TASK], task)
 					}
-					resp = fmt.Sprintf(model.Commands[model.CREATE_TASK], task)
 				}
 			case strings.Contains(update.Message.Text, model.UPDATE_TASK):
 				userID, err := t.svc.ValidateUserTG(userTelegramID)
@@ -146,8 +148,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					err = t.svc.UpdateTask(context.Background(), &task)
 					if err != nil {
 						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
 					}
-					resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
 				}
 			case strings.Contains(update.Message.Text, model.CREATE_USER):
 				spStr := strings.Split(update.Message.Text, " ")
@@ -157,11 +160,14 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					userID, err := t.svc.CreateUserFromTG(spStr[1], spStr[2], userTelegramID)
 					if err != nil {
 						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.CREATE_USER], userID)
 					}
-					resp = fmt.Sprintf(model.Commands[model.CREATE_USER], userID)
 				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
+			default:
+				resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
 			}
 
 			lastChatID = update.Message.Chat.ID
