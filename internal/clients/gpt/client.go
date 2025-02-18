@@ -56,6 +56,6 @@ func (c *Client) GetCompletion(systemContent, userContent string) (model.GPTAnsw
 func New(restyCl *resty.Client) *Client {
 	return &Client{
 		restyCl: restyCl,
-		token:   os.Getenv("GPT_TOKEN"),
+		token:   os.Getenv(model.GPT_TOKEN),
 	}
 }

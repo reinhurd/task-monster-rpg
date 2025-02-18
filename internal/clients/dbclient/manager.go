@@ -31,7 +31,7 @@ func (m *Manager) Ping() error {
 }
 
 func NewManager() *Manager {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv(model.MONGODB_URI)))
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to MongoDB")
 	}

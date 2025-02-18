@@ -14,6 +14,7 @@ import (
 	"rpgMonster/internal/clients/dbclient"
 	"rpgMonster/internal/clients/gpt"
 	"rpgMonster/internal/core"
+	"rpgMonster/internal/model"
 	"rpgMonster/internal/transport/api"
 	"rpgMonster/internal/transport/telegram"
 
@@ -24,8 +25,8 @@ func main() {
 	if err := godotenv.Load("secret.env"); err != nil {
 		log.Warn().Msg("secret.env does not exist")
 		requiredEnvVars := []string{
-			"TG_SECRET_KEY",
-			"MONGODB_URI",
+			model.TG_SECRET_ENV,
+			model.MONGODB_URI,
 		}
 
 		for _, envVar := range requiredEnvVars {
@@ -48,7 +49,7 @@ func main() {
 
 	service := core.NewService(gptClient, taskManager)
 
-	tgbot, err := telegram.StartBot(os.Getenv("TG_SECRET_KEY"), true, service)
+	tgbot, err := telegram.StartBot(os.Getenv(model.TG_SECRET_ENV), true, service)
 	if err != nil {
 		panic(err)
 	}
