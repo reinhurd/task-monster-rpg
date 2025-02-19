@@ -11,6 +11,7 @@ import (
 
 const (
 	modelName = "gpt-4o"
+	reqUrl    = "https://api.openai.com/v1/chat/completions"
 )
 
 type Client struct {
@@ -38,7 +39,7 @@ func (c *Client) GetCompletion(systemContent, userContent string) (model.GPTAnsw
 			},
 		},
 	})
-	resp, err := req.Post("https://api.openai.com/v1/chat/completions")
+	resp, err := req.Post(reqUrl)
 	if err != nil {
 		log.Error().Err(err).Msg("error sending request")
 		return gptAnswer, err
