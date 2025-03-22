@@ -164,10 +164,16 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = fmt.Sprintf(model.Commands[model.CREATE_USER], userID)
 					}
 				}
+			case strings.Contains(update.Message.Text, model.START):
+				if userID == "" {
+					resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password> or connect user " + model.Commands[model.CONNECT_USER] + " <login> <password>"
+				} else {
+					resp = "Hello, " + update.Message.From.UserName + "!" + " You already registered as " + userID + ", to get help type " + model.HELP
+				}
 			case strings.Contains(update.Message.Text, model.HELP):
 				resp = model.Commands[model.HELP]
 			default:
-				resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type" + model.HELP
+				resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type " + model.HELP
 			}
 
 			lastChatID = update.Message.Chat.ID
