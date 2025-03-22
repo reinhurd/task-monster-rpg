@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -56,8 +55,7 @@ func (m *Manager) CreateNewUserTG(login, password string, telegramID int64) (id 
 		return "", err
 	}
 	//update user with TGID
-	convTGID := strconv.FormatInt(telegramID, 10)
-	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: convTGID}})
+	_, err = m.collectionUsers.UpdateOne(context.TODO(), bson.M{BIZ_ID: userID}, bson.M{"$set": bson.M{TGID: telegramID}})
 	if err != nil {
 		return "", err
 	}
@@ -122,6 +120,24 @@ func (m *Manager) CheckPassword(login string, password string) (id string, tempT
 func (m *Manager) GetUserByTempToken(tempToken string) (id string, err error) {
 	var user model.User
 	err = m.collectionUsers.FindOne(context.TODO(), bson.M{TEMP_TOKEN: tempToken}).Decode(&user)
+	if err != nil {
+		return "", err
+	}
+	return user.BizID, nil
+}
+
+func (m *Manager) CheckUserByLogin(login string) (id string, err error) {
+	var user model.User
+	err = m.collectionUsers.FindOne(context.TODO(), bson.M{LOGIN: login}).Decode(&user)
+	if err != nil {
+		return "", err
+	}
+	return user.BizID, nil
+}
+
+func (m *Manager) CheckUserByBizID(bizID string) (id string, err error) {
+	var user model.User
+	err = m.collectionUsers.FindOne(context.TODO(), bson.M{BIZ_ID: bizID}).Decode(&user)
 	if err != nil {
 		return "", err
 	}

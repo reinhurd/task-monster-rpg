@@ -7,6 +7,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo"
 	"rpgMonster/internal/core"
 	"rpgMonster/internal/model"
 )
@@ -85,6 +86,10 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = "Please specify user login and password"
 				} else {
 					userID, _, err := t.svc.CheckPassword(spStr[1], spStr[2])
+					if err == mongo.ErrNoDocuments {
+						resp = "User with this login and password doesn't exist"
+						break
+					}
 					if err != nil {
 						return err
 					}

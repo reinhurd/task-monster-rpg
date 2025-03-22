@@ -19,6 +19,8 @@ type DBClient interface {
 	CreateNewUserTG(login, password string, telegramID int64) (id string, err error)
 	CheckPassword(login, password string) (id string, tempToken string, err error)
 	GetUserByTempToken(tempToken string) (id string, err error)
+	CheckUserByLogin(login string) (id string, err error)
+	CheckUserByBizID(bizID string) (id string, err error)
 	GetUserByTGID(telegramID int64) (id string, err error)
 	UpdateUserTGID(userID string, telegramID int64) error
 	GetTaskListByUserID(userID string) (tasks []model.Task, err error)

@@ -19,7 +19,7 @@ var Commands = map[string]string{
 		"/update_task <task_id> <task_goal> <task_description> - update a task\n" + //todo add additional field for task
 		"/create_user <login> <password> - create a user\n",
 	CREATE_TASK_GPT: "Task created: %v",
-	CONNECT_USER:    "User connected: %v",
+	CONNECT_USER:    "User connected with userID: %v",
 	TASK_LIST:       "Task: %v\n",
 	CREATE_TASK:     "Task created: %v",
 	UPDATE_TASK:     "Task updated: %v",
