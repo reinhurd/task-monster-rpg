@@ -166,7 +166,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				}
 			case strings.Contains(update.Message.Text, model.START):
 				if userID == "" {
-					resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password> or connect user " + model.Commands[model.CONNECT_USER] + " <login> <password>"
+					resp = "Please register first, type " + model.CREATE_USER + " <login> <password> or connect user " + model.CONNECT_USER + " <login> <password>"
 				} else {
 					resp = "Hello, " + update.Message.From.UserName + "!" + " You already registered as " + userID + ", to get help type " + model.HELP
 				}
