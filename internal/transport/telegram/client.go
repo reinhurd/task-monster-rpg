@@ -57,7 +57,8 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = err.Error()
 				} else {
 					for _, task := range tasks {
-						resp = fmt.Sprintf(model.Commands[model.TASK_LIST], task)
+						// todo add sort by date - for today, for week and for later than week
+						resp = fmt.Sprintf(model.Commands[model.TASK_LIST], task, task.BizId)
 					}
 				}
 			}
@@ -111,7 +112,24 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = err.Error()
 				} else {
 					for _, task := range tasks {
-						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task)
+						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task, task.BizId)
+					}
+				}
+			case strings.Contains(update.Message.Text, model.VIEW_TASK):
+				userID, err := t.svc.ValidateUserTG(userTelegramID)
+				if err != nil {
+					resp = err.Error()
+					break
+				}
+				taskID := strings.Split(update.Message.Text, " ")
+				if len(taskID) < 2 {
+					resp = "Please specify task ID"
+				} else {
+					task, err := t.svc.GetTask(context.Background(), taskID[1], userID)
+					if err != nil {
+						resp = err.Error()
+					} else {
+						resp = fmt.Sprintf(model.Commands[model.VIEW_TASK], task, task.BizId)
 					}
 				}
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
