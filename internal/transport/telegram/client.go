@@ -51,17 +51,10 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 			} else if err != nil {
 				resp = err.Error()
-			} else {
-				tasks, err := t.svc.GetListTasksByUserID(context.Background(), userID)
-				if err != nil {
-					resp = err.Error()
-				} else {
-					for _, task := range tasks {
-						// todo add sort by date - for today, for week and for later than week
-						resp = fmt.Sprintf(model.Commands[model.TASK_LIST], task, task.BizId)
-					}
-				}
 			}
+
+			lastChatID = update.Message.Chat.ID
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 			switch {
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
@@ -111,9 +104,21 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				if err != nil {
 					resp = err.Error()
 				} else {
+					buttons := make([]tgbotapi.KeyboardButton, 0)
 					for _, task := range tasks {
-						resp += fmt.Sprintf(model.Commands[model.TASK_LIST], task, task.BizId)
+						if task.BizId != "" {
+							resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+							button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+							buttons = append(buttons, button)
+						}
 					}
+
+					keyboard := tgbotapi.NewOneTimeReplyKeyboard(
+						tgbotapi.NewKeyboardButtonRow(
+							buttons...,
+						),
+					)
+					msg.ReplyMarkup = keyboard
 				}
 			case strings.Contains(update.Message.Text, model.VIEW_TASK):
 				userID, err := t.svc.ValidateUserTG(userTelegramID)
@@ -125,12 +130,21 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				if len(taskID) < 2 {
 					resp = "Please specify task ID"
 				} else {
+					buttons := make([]tgbotapi.KeyboardButton, 0)
 					task, err := t.svc.GetTask(context.Background(), taskID[1], userID)
 					if err != nil {
 						resp = err.Error()
 					} else {
-						resp = fmt.Sprintf(model.Commands[model.VIEW_TASK], task, task.BizId)
+						resp = fmt.Sprintf(model.Commands[model.VIEW_TASK], task.BizId, task.Title, task.Description, task.Completed, task.Executor, task.Reviewer, task.Deadline, task.CreatedAt, task.UpdatedAt)
+						button := tgbotapi.NewKeyboardButton(model.UPDATE_TASK + " " + task.BizId)
+						buttons = append(buttons, button)
 					}
+					keyboard := tgbotapi.NewOneTimeReplyKeyboard(
+						tgbotapi.NewKeyboardButtonRow(
+							buttons...,
+						),
+					)
+					msg.ReplyMarkup = keyboard
 				}
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
 				userID, err := t.svc.ValidateUserTG(userTelegramID)
@@ -161,7 +175,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				}
 				splStr := strings.Split(update.Message.Text, " ")
 				if len(splStr) < 4 {
-					resp = "Please specify task ID, goal and description"
+					resp = "Please specify task ID, goal and description, in format: /edit_task <task_id> <task_goal> <task_description>"
 				} else {
 					var task model.Task
 					task.BizId = splStr[1]
@@ -199,19 +213,20 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type " + model.HELP
 			}
 
-			lastChatID = update.Message.Chat.ID
+			msg.ReplyToMessageID = update.Message.MessageID
+			msg.Text = resp
 
-			if len(resp) > 4095 {
-				// split message and send in parts
-				for len(resp) > 4095 {
-					_, err = t.Send(update.Message.Chat.ID, update.Message.MessageID, resp[:4095])
-					if err != nil {
-						log.Err(err).Msg("send error")
-					}
-					resp = resp[4095:]
-				}
-			}
-			_, err = t.Send(update.Message.Chat.ID, update.Message.MessageID, resp)
+			//if len(resp) > 4095 {
+			//	// split message and send in parts
+			//	for len(resp) > 4095 {
+			//		_, err = t.Send(update.Message.Chat.ID, update.Message.MessageID, resp[:4095])
+			//		if err != nil {
+			//			log.Err(err).Msg("send error")
+			//		}
+			//		resp = resp[4095:]
+			//	}
+			//}
+			_, err = t.bot.Send(msg)
 			if err != nil {
 				log.Err(err).Msg("send error")
 			}

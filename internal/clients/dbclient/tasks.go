@@ -2,6 +2,7 @@ package dbclient
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -41,10 +42,12 @@ func (m *Manager) GetTask(ctx context.Context, bizID string) (task *model.Task, 
 
 func (m *Manager) UpdateTask(ctx context.Context, task *model.Task) error {
 	task.UpdatedAt = time.Now()
+	fmt.Println("task.BizId", task.BizId)
 	_, err := m.collectionTasks.UpdateOne(
 		ctx,
 		bson.M{BIZ_ID: task.BizId},
-		bson.M{"$set": bson.M{COMPLETED: task.Completed}},
+		//set all fields
+		bson.M{"$set": bson.M{COMPLETED: task.Completed, EXECUTOR: task.Executor, REVIEWER: task.Reviewer, "title": task.Title, "description": task.Description, "deadline": task.Deadline, "tags": task.Tags}},
 	)
 	return err
 }
