@@ -55,6 +55,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 
 			lastChatID = update.Message.Chat.ID
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 
 			switch {
 			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
