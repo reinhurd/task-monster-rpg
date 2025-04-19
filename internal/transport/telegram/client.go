@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -105,8 +106,43 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				if err != nil {
 					resp = err.Error()
 				} else {
-					buttons := make([]tgbotapi.KeyboardButton, 0)
+					//sort all tasks by deadline, and put them to today, week and other slices
+					todayTasks := make([]model.Task, 0)
+					weekTasks := make([]model.Task, 0)
+					otherTasks := make([]model.Task, 0)
+					sort.Slice(tasks, func(i, j int) bool {
+						return tasks[i].Deadline.Before(tasks[j].Deadline)
+					})
 					for _, task := range tasks {
+						if task.Deadline.IsZero() {
+							otherTasks = append(otherTasks, task)
+						} else {
+							if task.Deadline.Day() == 0 {
+								todayTasks = append(todayTasks, task)
+							} else if task.Deadline.Day() < 7 {
+								weekTasks = append(weekTasks, task)
+							}
+						}
+					}
+					buttons := make([]tgbotapi.KeyboardButton, 0)
+					resp += "---TODAY---\n"
+					for _, task := range todayTasks {
+						if task.BizId != "" {
+							resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+							button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+							buttons = append(buttons, button)
+						}
+					}
+					resp += "---WEEK---\n"
+					for _, task := range weekTasks {
+						if task.BizId != "" {
+							resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+							button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+							buttons = append(buttons, button)
+						}
+					}
+					resp += "---OTHER---\n"
+					for _, task := range otherTasks {
 						if task.BizId != "" {
 							resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
 							button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)

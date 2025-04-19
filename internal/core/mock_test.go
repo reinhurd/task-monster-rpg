@@ -94,6 +94,36 @@ func (mr *MockDBClientMockRecorder) CheckPassword(login, password any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPassword", reflect.TypeOf((*MockDBClient)(nil).CheckPassword), login, password)
 }
 
+// CheckUserByBizID mocks base method.
+func (m *MockDBClient) CheckUserByBizID(bizID string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserByBizID", bizID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserByBizID indicates an expected call of CheckUserByBizID.
+func (mr *MockDBClientMockRecorder) CheckUserByBizID(bizID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserByBizID", reflect.TypeOf((*MockDBClient)(nil).CheckUserByBizID), bizID)
+}
+
+// CheckUserByLogin mocks base method.
+func (m *MockDBClient) CheckUserByLogin(login string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserByLogin", login)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserByLogin indicates an expected call of CheckUserByLogin.
+func (mr *MockDBClientMockRecorder) CheckUserByLogin(login any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserByLogin", reflect.TypeOf((*MockDBClient)(nil).CheckUserByLogin), login)
+}
+
 // CreateNewUser mocks base method.
 func (m *MockDBClient) CreateNewUser(login, password string) (string, error) {
 	m.ctrl.T.Helper()

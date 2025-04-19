@@ -463,6 +463,8 @@ func TestService_ConnectUserToTG(t *testing.T) {
 			},
 			wantErr: false,
 			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetUserByTGID(int64(12)).Return("", nil)
+				db.EXPECT().CheckUserByBizID("1").Return("1", nil)
 				db.EXPECT().UpdateUserTGID("1", int64(12)).Return(nil)
 			},
 		},
@@ -474,7 +476,8 @@ func TestService_ConnectUserToTG(t *testing.T) {
 			},
 			wantErr: true,
 			mockFunc: func(db *MockDBClient) {
-				db.EXPECT().UpdateUserTGID("1", int64(12)).Return(fmt.Errorf("error"))
+				db.EXPECT().GetUserByTGID(int64(12)).Return("", nil)
+				db.EXPECT().CheckUserByBizID("1").Return("", fmt.Errorf("error"))
 			},
 		},
 	}
@@ -521,6 +524,8 @@ func TestService_CreateUserFromTG(t *testing.T) {
 			},
 			wantErr: false,
 			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetUserByTGID(int64(12)).Return("", nil)
+				db.EXPECT().CheckUserByLogin("login").Return("", nil)
 				db.EXPECT().CreateNewUserTG("login", "password", int64(12)).Return("1", nil)
 			},
 			expRes: "1",
@@ -534,6 +539,8 @@ func TestService_CreateUserFromTG(t *testing.T) {
 			},
 			wantErr: true,
 			mockFunc: func(db *MockDBClient) {
+				db.EXPECT().GetUserByTGID(int64(12)).Return("", nil)
+				db.EXPECT().CheckUserByLogin("login").Return("", nil)
 				db.EXPECT().CreateNewUserTG("login", "password", int64(12)).Return("", fmt.Errorf("error"))
 			},
 		},
