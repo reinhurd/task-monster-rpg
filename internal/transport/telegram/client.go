@@ -69,7 +69,8 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 				if len(splStr) < 2 {
 					resp = "Please specify request"
 				} else {
-					task, err := t.svc.CreateTaskFromGPTByRequest(splStr[1], userID)
+					request := strings.Join(splStr[1:], " ")
+					task, err := t.svc.CreateTaskFromGPTByRequest(request, userID)
 					if err != nil {
 						resp = err.Error()
 					} else {
@@ -183,7 +184,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					)
 					msg.ReplyMarkup = keyboard
 				}
-			case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
+			case strings.Contains(update.Message.Text, model.CREATE_TASK):
 				userID, err := t.svc.ValidateUserTG(userTelegramID)
 				if err != nil {
 					resp = err.Error()
