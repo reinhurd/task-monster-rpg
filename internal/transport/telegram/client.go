@@ -96,6 +96,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 					request := update.Message.Text
 					if len(request) < 1 || strings.TrimSpace(request) == "" {
 						resp = "Please specify request - you need to type REQUEST - a sentence with your goal. For example: learn php."
@@ -137,6 +142,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 					splStr := strings.Split(update.Message.Text, " ")
 					//add to second element all other elements
 					if len(splStr) > 2 {
@@ -163,6 +173,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(lastMessage, " ")
@@ -197,6 +212,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 					splStr := strings.Split(lastMessage, " ")
 					//add to second element all other elements
 					if len(splStr) < 2 {
@@ -227,6 +247,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(lastMessage, " ")
@@ -264,9 +289,14 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 			if !isLastMessageIsCommand {
 				switch {
 				case strings.Contains(update.Message.Text, model.CREATE_TASK_GPT):
-					_, err := t.svc.ValidateUserTG(userTelegramID)
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					resp = "Please specify request - you need to type REQUEST - a sentence with your goal. For example: learn php."
@@ -280,6 +310,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 					tasks, err := t.svc.GetListTasksByUserID(context.Background(), userID)
 					if err != nil {
 						resp = err.Error()
@@ -288,7 +323,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 							resp = "You have no tasks"
 							break
 						} else {
-							resp = "You have " + strconv.Itoa(len(tasks)) + " tasks"
+							resp = "You have " + strconv.Itoa(len(tasks)) + " tasks \n"
 						}
 						//sort all tasks by deadline, and put them to today, week and other slices
 						todayTasks := make([]model.Task, 0)
@@ -379,6 +414,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 					taskID := strings.Split(update.Message.Text, "_")
 					if len(taskID) < 2 {
 						resp = "Please specify task ID"
@@ -416,33 +456,53 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					break
 				case strings.Contains(update.Message.Text, model.CREATE_TASK):
-					_, err := t.svc.ValidateUserTG(userTelegramID)
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					resp = "Please specify task goal and description in format: <task_goal> <task_description>, example: PHP this is description"
 					store.SetLastMessage(userTelegramID, model.CREATE_TASK)
 				case strings.Contains(update.Message.Text, model.UPDATE_TASK_DATE):
-					_, err := t.svc.ValidateUserTG(userTelegramID)
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					resp = "Please specify new date in format: DD-MM-YYYY, example: 01-01-2023"
 					store.SetLastMessage(userTelegramID, update.Message.Text)
 				case strings.Contains(update.Message.Text, model.UPDATE_TASK_TITLE):
-					_, err := t.svc.ValidateUserTG(userTelegramID)
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					resp = "Please specify new title in format: <task_title>, example: PHP"
 					store.SetLastMessage(userTelegramID, update.Message.Text)
 				case strings.Contains(update.Message.Text, model.UPDATE_TASK_DESC):
-					_, err := t.svc.ValidateUserTG(userTelegramID)
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					resp = "Please specify new description in format: <task_description>, example: PHP this is description"
@@ -451,6 +511,11 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
 						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(update.Message.Text, " ")
@@ -496,6 +561,16 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					resp = model.Commands[model.HELP]
 				default:
 					resp = "Hello, " + update.Message.From.UserName + "!" + " You said: " + update.Message.Text + ", to get help type " + model.HELP
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					if userID == "" {
+						//message that user need to register
+						resp += "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						break
+					}
 				}
 			}
 
