@@ -72,7 +72,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 			userID, err := t.svc.ValidateUserTG(userTelegramID)
 			if userID == "" {
 				//message that user need to register
-				resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+				resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 			} else if err != nil {
 				resp = err.Error()
 			}
@@ -98,7 +98,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					request := update.Message.Text
@@ -144,7 +144,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(update.Message.Text, " ")
@@ -177,7 +177,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(lastMessage, " ")
@@ -214,7 +214,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(lastMessage, " ")
@@ -251,7 +251,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(lastMessage, " ")
@@ -296,7 +296,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					resp = "Please specify request - you need to type REQUEST - a sentence with your goal. For example: learn php."
@@ -312,7 +312,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					tasks, err := t.svc.GetListTasksByUserID(context.Background(), userID)
@@ -416,7 +416,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					taskID := strings.Split(update.Message.Text, "_")
@@ -463,7 +463,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					resp = "Please specify task goal and description in format: <task_goal> <task_description>, example: PHP this is description"
@@ -476,7 +476,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					resp = "Please specify new date in format: DD-MM-YYYY, example: 01-01-2023"
@@ -489,7 +489,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					resp = "Please specify new title in format: <task_title>, example: PHP"
@@ -502,7 +502,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					resp = "Please specify new description in format: <task_description>, example: PHP this is description"
@@ -515,7 +515,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp = "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp = "Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 					splStr := strings.Split(update.Message.Text, " ")
@@ -568,7 +568,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					if userID == "" {
 						//message that user need to register
-						resp += "Please register first, type " + model.Commands[model.CREATE_USER] + " <login> <password>"
+						resp += " Please register first, type " + model.CREATE_USER + " <login> <password>"
 						break
 					}
 				}
