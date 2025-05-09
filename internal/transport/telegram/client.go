@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog/log"
@@ -197,30 +198,58 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 									todayTasks = append(todayTasks, task)
 								} else if task.Deadline.Day() < 7 {
 									weekTasks = append(weekTasks, task)
+								} else {
+									otherTasks = append(otherTasks, task)
 								}
 							}
 						}
 						buttons := make([]tgbotapi.KeyboardButton, 0)
-						resp += "---TODAY---\n"
+						//set today date to DD-MM-YYYY format
+						today := time.Now().Format("02-01-2006")
+						resp += "---TODAY[" + today + "]---\n\n"
 						for _, task := range todayTasks {
 							if task.BizId != "" {
-								resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+								var taskExecutionDate string
+								if task.Deadline.IsZero() {
+									taskExecutionDate = "not_planned"
+								} else {
+									taskExecutionDate = task.Deadline.Format("02-01-2006")
+								}
+								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								taskLink := model.VIEW_TASK + " " + task.BizId
+								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
 								buttons = append(buttons, button)
 							}
 						}
-						resp += "---WEEK---\n"
+						resp += "---WEEK---\n\n"
 						for _, task := range weekTasks {
 							if task.BizId != "" {
-								resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+								var taskExecutionDate string
+								if task.Deadline.IsZero() {
+									taskExecutionDate = "not_planned"
+								} else {
+									taskExecutionDate = task.Deadline.Format("02-01-2006")
+								}
+								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								taskLink := model.VIEW_TASK + " " + task.BizId
+								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
 								buttons = append(buttons, button)
 							}
 						}
-						resp += "---OTHER---\n"
+						resp += "---OTHER---\n\n"
 						for _, task := range otherTasks {
 							if task.BizId != "" {
-								resp += fmt.Sprintf("Task description: %v\n Task %v \n", task.Description, task.BizId)
+								var taskExecutionDate string
+								if task.Deadline.IsZero() {
+									taskExecutionDate = "not_planned"
+								} else {
+									taskExecutionDate = task.Deadline.Format("02-01-2006")
+								}
+								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								taskLink := model.VIEW_TASK + " " + task.BizId
+								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
 								buttons = append(buttons, button)
 							}
@@ -259,6 +288,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						)
 						msg.ReplyMarkup = keyboard
 					}
+					break
 				case strings.Contains(update.Message.Text, model.CREATE_TASK):
 					_, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {
@@ -274,13 +304,18 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						break
 					}
 					splStr := strings.Split(update.Message.Text, " ")
-					if len(splStr) < 4 {
-						resp = "Please specify task ID, goal and description, in format: /edit_task <task_id> <task_goal> <task_description>"
+					if len(splStr) < 5 {
+						resp = "Please specify task ID, goal and description, in format: /edit_task <task_id> <task_goal> <task_description> <task deadline as DD-MM-YYYY>"
 					} else {
 						var task model.Task
 						task.BizId = splStr[1]
 						task.Title = splStr[2]
 						task.Description = splStr[3]
+						task.Deadline, err = time.Parse("02-01-2006", splStr[4])
+						if err != nil {
+							resp = "Please specify task deadline in format: DD-MM-YYYY"
+							break
+						}
 						task.Executor = userID
 						err = t.svc.UpdateTask(context.Background(), &task)
 						if err != nil {
