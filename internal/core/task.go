@@ -23,6 +23,20 @@ func (s *Service) GetTask(ctx context.Context, bizID string, userID string) (tas
 	return task, nil
 }
 
+func (s *Service) GetTaskByIDAndUserID(ctx context.Context, taskID int64, userID string) (task *model.Task, err error) {
+	task, err = s.dbManager.GetTaskByIDAndUserID(ctx, taskID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if task.BizId == "" {
+		return nil, fmt.Errorf("task not found")
+	}
+	if task.Executor != userID || (task.Reviewer != nil && *task.Reviewer != userID) {
+		return nil, fmt.Errorf("no rights to view task")
+	}
+	return task, nil
+}
+
 func (s *Service) GetListTasksByUserID(ctx context.Context, userID string) (tasks []model.Task, err error) {
 	return s.dbManager.GetTaskListByUserID(userID)
 }

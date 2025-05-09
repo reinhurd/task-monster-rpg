@@ -183,6 +183,21 @@ func (mr *MockDBClientMockRecorder) GetTask(ctx, bizID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockDBClient)(nil).GetTask), ctx, bizID)
 }
 
+// GetTaskByIDAndUserID mocks base method.
+func (m *MockDBClient) GetTaskByIDAndUserID(ctx context.Context, taskID int64, userID string) (*model.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskByIDAndUserID", ctx, taskID, userID)
+	ret0, _ := ret[0].(*model.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskByIDAndUserID indicates an expected call of GetTaskByIDAndUserID.
+func (mr *MockDBClientMockRecorder) GetTaskByIDAndUserID(ctx, taskID, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskByIDAndUserID", reflect.TypeOf((*MockDBClient)(nil).GetTaskByIDAndUserID), ctx, taskID, userID)
+}
+
 // GetTaskListByUserID mocks base method.
 func (m *MockDBClient) GetTaskListByUserID(userID string) ([]model.Task, error) {
 	m.ctrl.T.Helper()

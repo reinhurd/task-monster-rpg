@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -137,7 +138,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						break
 					}
 					splStr := strings.Split(update.Message.Text, " ")
-					//add to second element all otehr elements
+					//add to second element all other elements
 					if len(splStr) > 2 {
 						splStr[1] = strings.Join(splStr[1:], " ")
 						splStr = splStr[:2]
@@ -154,6 +155,106 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 							resp = err.Error()
 						} else {
 							resp = fmt.Sprintf(model.Commands[model.CREATE_TASK], task)
+						}
+						store.SetLastMessage(userTelegramID, "")
+					}
+				case strings.Contains(lastMessage, model.UPDATE_TASK_DESC):
+					isLastMessageIsCommand = true
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					splStr := strings.Split(lastMessage, " ")
+					//add to second element all other elements
+					if len(splStr) < 2 {
+						resp = "Please specify request - write description of task in format: <task_description>, example: PHP this is description"
+					} else {
+						taskID := splStr[1]
+						taskIDint, err := strconv.Atoi(taskID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						task, err := t.svc.GetTaskByIDAndUserID(context.Background(), int64(taskIDint), userID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						task.Description = update.Message.Text
+						err = t.svc.UpdateTask(context.Background(), task)
+						if err != nil {
+							resp = err.Error()
+						} else {
+							resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
+						}
+						store.SetLastMessage(userTelegramID, "")
+					}
+				case strings.Contains(lastMessage, model.UPDATE_TASK_TITLE):
+					isLastMessageIsCommand = true
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					splStr := strings.Split(lastMessage, " ")
+					//add to second element all other elements
+					if len(splStr) < 2 {
+						resp = "Please specify request - write title of task in format: <task_title>, example: PHP"
+					} else {
+						taskID := splStr[1]
+						taskIDint, err := strconv.Atoi(taskID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						task, err := t.svc.GetTaskByIDAndUserID(context.Background(), int64(taskIDint), userID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						task.Title = update.Message.Text
+						err = t.svc.UpdateTask(context.Background(), task)
+						if err != nil {
+							resp = err.Error()
+						} else {
+							resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
+						}
+						store.SetLastMessage(userTelegramID, "")
+					}
+				case strings.Contains(lastMessage, model.UPDATE_TASK_DATE):
+					isLastMessageIsCommand = true
+					userID, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					splStr := strings.Split(lastMessage, " ")
+					//add to second element all other elements
+					if len(splStr) < 2 {
+						resp = "Please specify request - write execution date of task in DD-MM-YYYY format, example: 01-01-2023"
+					} else {
+						taskID := splStr[1]
+						taskIDint, err := strconv.Atoi(taskID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						task, err := t.svc.GetTaskByIDAndUserID(context.Background(), int64(taskIDint), userID)
+						if err != nil {
+							resp = err.Error()
+							break
+						}
+						newDate, err := time.Parse("02-01-2006", update.Message.Text)
+						if err != nil {
+							resp = "Please specify request - write execution date of task in DD-MM-YYYY format, example: 01-01-2023"
+						}
+						task.Deadline = newDate
+						err = t.svc.UpdateTask(context.Background(), task)
+						if err != nil {
+							resp = err.Error()
+						} else {
+							resp = fmt.Sprintf(model.Commands[model.UPDATE_TASK], task)
 						}
 						store.SetLastMessage(userTelegramID, "")
 					}
@@ -183,6 +284,12 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					if err != nil {
 						resp = err.Error()
 					} else {
+						if len(tasks) == 0 {
+							resp = "You have no tasks"
+							break
+						} else {
+							resp = "You have " + strconv.Itoa(len(tasks)) + " tasks"
+						}
 						//sort all tasks by deadline, and put them to today, week and other slices
 						todayTasks := make([]model.Task, 0)
 						weekTasks := make([]model.Task, 0)
@@ -216,9 +323,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
 								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
-								taskLink := model.VIEW_TASK + " " + task.BizId
+								taskLink := model.VIEW_TASK + "_" + strconv.FormatInt(task.UnID, 10)
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
-								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+								button := tgbotapi.NewKeyboardButton(taskLink)
 								buttons = append(buttons, button)
 							}
 						}
@@ -232,9 +339,9 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
 								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
-								taskLink := model.VIEW_TASK + " " + task.BizId
+								taskLink := model.VIEW_TASK + "_" + strconv.FormatInt(task.UnID, 10)
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
-								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+								button := tgbotapi.NewKeyboardButton(taskLink)
 								buttons = append(buttons, button)
 							}
 						}
@@ -248,19 +355,23 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
 								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
-								taskLink := model.VIEW_TASK + " " + task.BizId
+								taskLink := model.VIEW_TASK + "_" + strconv.FormatInt(task.UnID, 10)
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
-								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
+								button := tgbotapi.NewKeyboardButton(taskLink)
 								buttons = append(buttons, button)
 							}
 						}
+						var rows [][]tgbotapi.KeyboardButton
+						for _, button := range buttons {
+							rows = append(rows, tgbotapi.NewKeyboardButtonRow(button))
+						}
 
-						keyboard := tgbotapi.NewOneTimeReplyKeyboard(
-							tgbotapi.NewKeyboardButtonRow(
-								buttons...,
-							),
+						kb := tgbotapi.NewReplyKeyboard(
+							rows...,
 						)
-						msg.ReplyMarkup = keyboard
+						kb.ResizeKeyboard = true
+						kb.OneTimeKeyboard = true
+						msg.ReplyMarkup = kb
 					}
 				case strings.Contains(update.Message.Text, model.VIEW_TASK):
 					userID, err := t.svc.ValidateUserTG(userTelegramID)
@@ -268,25 +379,40 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 						resp = err.Error()
 						break
 					}
-					taskID := strings.Split(update.Message.Text, " ")
+					taskID := strings.Split(update.Message.Text, "_")
 					if len(taskID) < 2 {
 						resp = "Please specify task ID"
 					} else {
 						buttons := make([]tgbotapi.KeyboardButton, 0)
-						task, err := t.svc.GetTask(context.Background(), taskID[1], userID)
+						taskUnID, err := strconv.ParseInt(taskID[2], 10, 64)
+						if err != nil {
+							resp = "Please specify task ID in format: /view_task_<task_id>"
+							break
+						}
+						task, err := t.svc.GetTaskByIDAndUserID(context.Background(), taskUnID, userID)
 						if err != nil {
 							resp = err.Error()
 						} else {
-							resp = fmt.Sprintf(model.Commands[model.VIEW_TASK], task.BizId, task.Title, task.Description, task.Completed, task.Executor, task.Reviewer, task.Deadline, task.CreatedAt, task.UpdatedAt)
-							button := tgbotapi.NewKeyboardButton(model.UPDATE_TASK + " " + task.BizId)
+							resp = fmt.Sprintf(model.Commands[model.VIEW_TASK], task.BizId, task.UnID, task.Title, task.Description, task.Completed, task.Executor, task.Reviewer, task.Deadline, task.CreatedAt, task.UpdatedAt)
+							button := tgbotapi.NewKeyboardButton(model.UPDATE_TASK_TITLE + " " + strconv.FormatInt(task.UnID, 10))
+							buttons = append(buttons, button)
+							button = tgbotapi.NewKeyboardButton(model.UPDATE_TASK_DESC + " " + strconv.FormatInt(task.UnID, 10))
+							buttons = append(buttons, button)
+							button = tgbotapi.NewKeyboardButton(model.UPDATE_TASK_DATE + " " + strconv.FormatInt(task.UnID, 10))
 							buttons = append(buttons, button)
 						}
-						keyboard := tgbotapi.NewOneTimeReplyKeyboard(
-							tgbotapi.NewKeyboardButtonRow(
-								buttons...,
-							),
+
+						var rows [][]tgbotapi.KeyboardButton
+						for _, button := range buttons {
+							rows = append(rows, tgbotapi.NewKeyboardButtonRow(button))
+						}
+
+						kb := tgbotapi.NewReplyKeyboard(
+							rows...,
 						)
-						msg.ReplyMarkup = keyboard
+						kb.ResizeKeyboard = true
+						kb.OneTimeKeyboard = true
+						msg.ReplyMarkup = kb
 					}
 					break
 				case strings.Contains(update.Message.Text, model.CREATE_TASK):
@@ -297,6 +423,30 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 					}
 					resp = "Please specify task goal and description in format: <task_goal> <task_description>, example: PHP this is description"
 					store.SetLastMessage(userTelegramID, model.CREATE_TASK)
+				case strings.Contains(update.Message.Text, model.UPDATE_TASK_DATE):
+					_, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					resp = "Please specify new date in format: DD-MM-YYYY, example: 01-01-2023"
+					store.SetLastMessage(userTelegramID, update.Message.Text)
+				case strings.Contains(update.Message.Text, model.UPDATE_TASK_TITLE):
+					_, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					resp = "Please specify new title in format: <task_title>, example: PHP"
+					store.SetLastMessage(userTelegramID, update.Message.Text)
+				case strings.Contains(update.Message.Text, model.UPDATE_TASK_DESC):
+					_, err := t.svc.ValidateUserTG(userTelegramID)
+					if err != nil {
+						resp = err.Error()
+						break
+					}
+					resp = "Please specify new description in format: <task_description>, example: PHP this is description"
+					store.SetLastMessage(userTelegramID, update.Message.Text)
 				case strings.Contains(update.Message.Text, model.UPDATE_TASK):
 					userID, err := t.svc.ValidateUserTG(userTelegramID)
 					if err != nil {

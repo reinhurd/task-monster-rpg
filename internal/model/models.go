@@ -43,15 +43,17 @@ type User struct {
 }
 
 type Task struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	BizId       string             `bson:"biz_id"`
-	Title       string             `bson:"title"`
-	Description string             `bson:"description"`
-	Executor    string             `bson:"executor"` // ID of the user executing the task
-	Reviewer    *string            `bson:"reviewer"` // Optional ID of the reviewing user
-	Completed   bool               `bson:"completed"`
-	CreatedAt   time.Time          `bson:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at"`
-	Deadline    time.Time          `bson:"deadline"`
-	Tags        []string           `bson:"tags"`
+	ID   primitive.ObjectID `bson:"_id,omitempty"`
+	UnID int64              `bson:"uniq_number"` // Unique ID for all user tasks
+	//TODO think about collision when executor gonna changed
+	BizId       string    `bson:"biz_id"`
+	Title       string    `bson:"title"`
+	Description string    `bson:"description"`
+	Executor    string    `bson:"executor"` // ID of the user executing the task
+	Reviewer    *string   `bson:"reviewer"` // Optional ID of the reviewing user
+	Completed   bool      `bson:"completed"`
+	CreatedAt   time.Time `bson:"created_at"`
+	UpdatedAt   time.Time `bson:"updated_at"`
+	Deadline    time.Time `bson:"deadline"`
+	Tags        []string  `bson:"tags"`
 }

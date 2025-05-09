@@ -1,16 +1,19 @@
 package model
 
 const (
-	HELP            = "/help"
-	CREATE_TASK_GPT = "/create_task_gpt"
-	CONNECT_USER    = "/connect_user"
-	TASK_LIST       = "/task_list"
-	CREATE_TASK     = "/create_task"
-	UPDATE_TASK     = "/edit_task"
-	CREATE_USER     = "/create_user"
-	START           = "/start"
-	VIEW_TASK       = "/view_task"
-	PROFILE         = "/profile"
+	HELP              = "/help"
+	CREATE_TASK_GPT   = "/create_task_gpt"
+	UPDATE_TASK_DATE  = "/update_task_date"
+	UPDATE_TASK_TITLE = "/update_task_title"
+	UPDATE_TASK_DESC  = "/update_task_desc"
+	CONNECT_USER      = "/connect_user"
+	TASK_LIST         = "/task_list"
+	CREATE_TASK       = "/create_task"
+	UPDATE_TASK       = "/edit_task"
+	CREATE_USER       = "/create_user"
+	START             = "/start"
+	VIEW_TASK         = "/view_task"
+	PROFILE           = "/profile"
 )
 
 var Commands = map[string]string{
@@ -24,5 +27,5 @@ var Commands = map[string]string{
 	CREATE_TASK:     "Task created: %v",
 	UPDATE_TASK:     "Task updated: %v",
 	CREATE_USER:     "User created with ID: %v",
-	VIEW_TASK:       "Task ID: %v\n Title: %v\n Description: %v\n Status: %v\n Executor: %v\n Reviewer: %v\n Deadline: %v\n Created: %v\n Updated: %v\n",
+	VIEW_TASK:       "Task ID: %v\n TaskUniqID: %v\n\n Title: %v\n Description: %v\n Status: %v\n Executor: %v\n Reviewer: %v\n Deadline: %v\n Created: %v\n Updated: %v\n",
 }
