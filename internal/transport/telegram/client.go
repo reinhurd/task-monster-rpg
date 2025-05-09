@@ -215,7 +215,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 								} else {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
-								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
 								taskLink := model.VIEW_TASK + " " + task.BizId
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
@@ -231,7 +231,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 								} else {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
-								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
 								taskLink := model.VIEW_TASK + " " + task.BizId
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
@@ -247,7 +247,7 @@ func (t *TGBot) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 								} else {
 									taskExecutionDate = task.Deadline.Format("02-01-2006")
 								}
-								titleWithExecutionDate := fmt.Sprintf("%s[%s]", task.Title, taskExecutionDate)
+								titleWithExecutionDate := fmt.Sprintf("%s [%s]", task.Title, taskExecutionDate)
 								taskLink := model.VIEW_TASK + " " + task.BizId
 								resp += fmt.Sprintf("Task %v\n %v\n \n\n", titleWithExecutionDate, taskLink)
 								button := tgbotapi.NewKeyboardButton(model.VIEW_TASK + " " + task.BizId)
